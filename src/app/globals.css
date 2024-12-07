@@ -19,3 +19,25 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.text-truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block; /* Ensures block-level behavior for text elements */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* MODIFY ANTD MODAL STYLES */
+.my-modal .ant-modal-content {
+  background-color: #1f2937;
+  border-radius: 0.7rem; /* Tailwind's rounded-lg */
+  padding: 1rem;
+}
+
+.my-modal .ant-modal-header {
+  display: none; /* Hide default header */
+}
