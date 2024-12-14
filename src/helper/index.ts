@@ -16,8 +16,8 @@ export const generateToken = (
 };
 
 export const truncateText = (text: string, length: number): string => {
-  if (text.length <= length) return text;
-  return text.substring(0, length - 2).trim() + "...";
+  if (text?.length <= length) return text;
+  return text?.substring(0, length - 2)?.trim() + "...";
 };
 
 export const validatePassword = async (
@@ -37,28 +37,6 @@ export const validateToken: any = (token: string) => {
   }
 };
 
-export const getUserFromRequest = async (request: NextRequest) => {
-  try {
-    //  get user from cookies token
-    const token = request.cookies.get("token");
-    if (!token) return null;
-
-    // validate token
-    const decoded = validateToken(token.value);
-    if (!decoded?.userId) return null;
-
-    return { _id: "asbkjd" };
-
-    // find user in db
-    // const foundUser = await User.findById(decoded.userId);
-    // if (!foundUser) return null;
-    // return foundUser;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
-
 export const getRating = (score: number) => {
   return Number((score / 20).toFixed(1));
 };
@@ -70,6 +48,26 @@ export const getTime = (minute: number) => {
     const hour = minute / 60;
     return `${hour.toFixed(1)} Hrs`;
   }
+};
+
+export const getRandomAvatars = () => {
+  const avatars = [
+    "/assets/av1.png",
+    "/assets/av2.png",
+    "/assets/av3.png",
+    "/assets/av4.png",
+    "/assets/av5.png",
+    "/assets/av6.png",
+    "/assets/av7.png",
+    "/assets/av8.png",
+    "/assets/av9.png",
+    "/assets/av10.png",
+    "/assets/av11.png",
+    "/assets/av12.png",
+  ];
+  // sort it in a random order;
+  avatars.sort(() => Math.random() - 0.5);
+  return avatars;
 };
 
 export { default as Recipe } from "./recipe";

@@ -1,46 +1,56 @@
-import { getUserFromRequest } from "@/helper";
+import { connect } from "@/config";
 import { RecentItems } from "@/models";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+
+connect();
 
 export const GET = async (req: NextRequest) => {
   try {
-    const user = await getUserFromRequest(req);
-    if (!user) {
+    const user = await currentUser();
+    if (!user?.id) {
       return NextResponse.json({
-        error: "User not found",
-        status: 404,
+        error: "User not authenticated",
+        status: 401,
+        success: false,
       });
     }
+    const { searchParams } = req.nextUrl;
+    const page = searchParams.get("page") || 0;
 
-    const recentItems = await RecentItems.find({
-      userId: user._id,
-    })
+    const recentItems = await RecentItems.find({ userId: user.id })
       .sort({ updatedAt: -1 })
-      .limit(10);
+      .skip((page as number) * 5)
+      .limit(5);
 
     return NextResponse.json({
+      recentItems,
       status: 200,
       success: true,
-      recentItems: recentItems,
     });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: "Server error", status: 500 });
+    return NextResponse.json({
+      error: "Server error",
+      status: 500,
+      success: false,
+    });
   }
 };
 
 export const POST = async (req: NextRequest) => {
   try {
-    const user = await getUserFromRequest(req);
-    if (!user) {
+    const user = await currentUser();
+    if (!user?.id) {
       return NextResponse.json({
-        error: "User not found",
-        status: 404,
+        error: "User not authenticated",
+        status: 401,
+        success: false,
       });
     }
 
     const {
-      recipeId,
+      id,
       image,
       title,
       servings,
@@ -52,14 +62,16 @@ export const POST = async (req: NextRequest) => {
 
     const isUpdate = await RecentItems.updateOne(
       {
-        userId: user._id,
-        recipeId,
+        userId: user.id,
+        id,
       },
       {
         updatedAt: new Date(),
       }
     );
-    if (isUpdate) {
+    console.log("Update => ", isUpdate);
+
+    if (isUpdate?.modifiedCount) {
       return NextResponse.json({
         status: 200,
         success: true,
@@ -68,8 +80,8 @@ export const POST = async (req: NextRequest) => {
     }
 
     await RecentItems.create({
-      userId: user._id,
-      recipeId,
+      userId: user.id,
+      id,
       image,
       title,
       servings,
@@ -86,6 +98,10 @@ export const POST = async (req: NextRequest) => {
     });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: "Server error", status: 500 });
+    return NextResponse.json({
+      error: "Server error",
+      status: 500,
+      success: false,
+    });
   }
 };

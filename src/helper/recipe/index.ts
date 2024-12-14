@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Random, Sample } from "../temp";
+import toast from "react-hot-toast";
 export { default as Options } from "./options";
 
 // Create Axios instance
@@ -29,8 +30,31 @@ export default {
       return null;
     }
   },
+  addRecentRecipe: async (recipeItem: any) => {
+    try {
+      const response = await axios.post("/api/recipe/recent", recipeItem);
+      if (response.data.success) {
+        return true;
+      } else toast.error(response.data.error);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
+  fetchRecentRecipe: async (page: number) => {
+    try {
+      const { data } = await axios.get(`/api/recipe/recent?page=${page}`);
+      console.log(data);
+      if (data.success) {
+        return data?.recentItems;
+      } else toast.error(data.error);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
   getSampleRecipe: async () => {
-    const { data } = await axios.get("/recipes/sample");
+    const { data } = await axios.get("/api/recipes/sample");
     return Sample;
   },
   getRecentRecipes: async () => {

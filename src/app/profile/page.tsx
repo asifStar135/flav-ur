@@ -1,44 +1,106 @@
 "use client";
 
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { store } from "@/store";
-import { MdOutlineMarkEmailRead } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { ConfigProvider, Modal, Popover, Select, Switch } from "antd";
-import { CiAt } from "react-icons/ci";
+import { Input, Modal, Popover, Select, Switch } from "antd";
 import { Options } from "@/helper/recipe";
-import { IoCheckmarkCircle, IoCloseCircle, IoMail } from "react-icons/io5";
+import { IoMail } from "react-icons/io5";
 import { FaAt } from "react-icons/fa6";
-import { Recipe } from "@/helper";
+import { getRandomAvatars, Recipe } from "@/helper";
 import RecipeCard from "@/components/RecipeCard";
+import { SignOutButton, useUser } from "@clerk/nextjs";
+import toast from "react-hot-toast";
+import TextArea from "antd/es/input/TextArea";
 
 const Profile = () => {
-  // logout function
-  const { username, email, avatar, clearState, setUser } = store();
-  console.log("User details from state", username, email);
-
-  const [recentRecipes, setRecentRecipes] = useState<any>([]);
-
+  //  LOAD Profile DETAILS
+  const { user, isLoaded } = useUser();
+  console.log("Logged in User ===>>", user);
+  // PREFERENCES FOR EDITING Profile
+  const [preference, setPreference] = useState<any>(null);
+  // Modals for account actions
   const [showLogOutModal, setShowLogOutModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editAvatar, setEditAvatar] = useState(false);
+  const [userDetails, setUserDetails] = useState<any>(null);
+  //   Recent Recipes
+  const [recentRecipes, setRecentRecipes] = useState<any>([]);
+  const [recentPageNo, setRecentPageNo] = useState<number>(0);
 
-  const logout = async () => {
+  const fetchRecentRecipes = async () => {
     try {
-      const response = await axios.get(`/api/user/logout`);
+      const recentItems = await Recipe.fetchRecentRecipe(recentPageNo);
+      console.log(recentItems);
+      setRecentRecipes((state: Array<any>) => state?.concat(recentItems));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-      if (response.data.success) {
-        alert("User logged out successfully");
-        clearState(); // clear user state
-        window.location.href = "/login";
-      }
+  const setAvatar = (avt: string) => {
+    setUserDetails((state: any) => ({
+      ...state,
+      avatar: avt,
+    }));
+    setEditAvatar(false);
+  };
+
+  const savePreferences = async () => {
+    try {
+      user?.update({
+        unsafeMetadata: {
+          preference,
+          bio: user?.unsafeMetadata?.bio,
+          avatar: user?.unsafeMetadata?.avatar,
+        },
+      });
+      toast.success("Preferences saved successfully.");
     } catch (error) {
       console.log(error);
+      toast.error("failed to save preferences.");
     }
+  };
+
+  const saveDetails = async () => {
+    try {
+      // make 1 second of pause using await
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      user?.update({
+        firstName: userDetails?.firstName,
+        lastName: userDetails?.lastName,
+        username: userDetails.username,
+        unsafeMetadata: {
+          preference,
+          bio: userDetails.bio,
+          avatar: userDetails.avatar,
+        },
+      });
+
+      toast.success("Details saved successfully.");
+      setShowEditModal(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save details.");
+    }
+  };
+
+  const removeUser = async () => {
+    // make 1 second of pause using await
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    await user?.delete();
+    toast.success("Account removed successfully.");
+    window.location.reload();
   };
 
   const content = (
     <div className="text-gray-200 text-lg flex flex-col gap-3">
-      <p className="hover:text-gray-800 transition cursor-pointer">
+      <p
+        className="hover:text-gray-800 transition cursor-pointer"
+        onClick={() => setShowEditModal(true)}
+      >
         Edit details
       </p>
       <p
@@ -47,22 +109,36 @@ const Profile = () => {
       >
         Log Out
       </p>
-      <p className="hover:text-gray-800 transition cursor-pointer">
+      <p
+        className="hover:text-gray-800 transition cursor-pointer"
+        onClick={() => setShowRemoveModal(true)}
+      >
         Remove Account
       </p>
     </div>
   );
 
   useEffect(() => {
-    const fetchRandomRecipes = async () => {
-      const response = await Recipe.getRecentRecipes();
-      setRecentRecipes(response.results);
-    };
+    if (user?.unsafeMetadata?.preference) {
+      setPreference(user?.unsafeMetadata?.preference);
+    }
+    if (isLoaded && user) {
+      setUserDetails({
+        name: user.fullName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        bio: user?.unsafeMetadata?.bio,
+        avatar: user?.unsafeMetadata?.avatar,
+      });
+    }
+  }, [isLoaded, user]);
 
-    fetchRandomRecipes();
-  });
+  useEffect(() => {
+    if (recentPageNo == 0) fetchRecentRecipes();
+  }, [recentPageNo]);
 
-  return username ? (
+  return isLoaded ? (
     <div>
       <div className="w-4/5 my-10 mx-auto bg-gray-800 rounded-lg px-20 py-10 flex justify-around">
         <div className="p-8 w-1/3 border border-yellow-700 rounded-2xl text-center relative">
@@ -79,28 +155,30 @@ const Profile = () => {
           </Popover>
           <div>
             <img
-              src={avatar}
+              src={
+                (user?.unsafeMetadata?.avatar as string) ||
+                "/assets/default.jpg"
+              }
               alt="User avatar"
-              className="h-40 w-48 object-cover rounded-full mx-auto"
+              className="h-44 w-44 border border-yel p-1 object-cover rounded-full mx-auto"
             />
           </div>
           <div>
             <p className="text-3xl font-semibold text-gray-200 mt-3">
-              Md Asif Mondal
+              {user?.fullName}
             </p>
 
-            <p className="text-sm w-auto text-gray-500 mb-4">
-              I'm a passionate food blogger and a loving traveler. I love
-              sharing my recipes and experiences with others.
+            <p className="text-base w-auto text-gray-500 mb-4">
+              {(user?.unsafeMetadata?.bio as string) || "- No bio -"}
             </p>
 
-            <div className="flex items-center text-2xl text-gray-400 gap-4">
+            <div className="flex items-center text-xl text-gray-400 gap-4">
               <FaAt />
-              <span>{username}</span>
+              <span>{user?.username}</span>
             </div>
-            <div className="flex items-center text-2xl text-gray-400 gap-4">
+            <div className="flex items-center text-xl text-gray-400 gap-4">
               <IoMail />
-              <span>{email}</span>
+              <span>{user?.emailAddresses[0]?.emailAddress}</span>
             </div>
           </div>
         </div>
@@ -119,6 +197,10 @@ const Profile = () => {
                 className="w-full"
                 options={Options.cuisinces}
                 showSearch
+                value={preference?.cuisine}
+                onChange={(value: string) =>
+                  setPreference((state: any) => ({ ...state, cuisine: value }))
+                }
               />
             </div>
             <div>
@@ -130,17 +212,37 @@ const Profile = () => {
                 placeholder="Select diet type..."
                 options={Options.dietTypes}
                 showSearch
+                value={preference?.diet}
+                onChange={(value: string) =>
+                  setPreference((state: any) => ({ ...state, diet: value }))
+                }
               />
             </div>
           </div>
           <div className="flex justify-between my-5 text-gray-400">
             <div className="flex gap-3 items-center mx-8">
-              <p>Gluten free</p>
-              <Switch />
+              <p>Dairy free</p>
+              <Switch
+                checked={preference?.dairyFree}
+                onChange={(checked: boolean) =>
+                  setPreference((state: any) => ({
+                    ...state,
+                    dairyFree: checked,
+                  }))
+                }
+              />
             </div>
             <div className="flex gap-3 items-center mx-8">
-              <p>Dairy free</p>
-              <Switch />
+              <p>Gluten free</p>
+              <Switch
+                checked={preference?.glutenFree}
+                onChange={(checked: boolean) =>
+                  setPreference((state: any) => ({
+                    ...state,
+                    glutenFree: checked,
+                  }))
+                }
+              />
             </div>
           </div>
           <div className="text-gray-400">
@@ -148,30 +250,203 @@ const Profile = () => {
             <input
               type="text"
               placeholder="E.g., peanuts, shellfish"
-              className="w-full p-2 bg-gray-700 rounded-lg text-white my-2"
+              className="w-full p-2 bg-gray-700 rounded-lg text-white my-2 ring-yel"
+              value={preference?.allergies}
+              onChange={(e: any) =>
+                setPreference((state: any) => ({
+                  ...state,
+                  allergies: e.target.value,
+                }))
+              }
             />
           </div>
           <div className="flex justify-around mt-5">
-            <button className="rounded-lg p-2 px-5 border border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-gray-800 transition-all">
-              Reset
-            </button>
-            <button className="rounded-lg p-2 px-5 border border-yel text-gray-300 hover:bg-yel hover:text-gray-800 transition-all">
+            <button
+              onClick={() => savePreferences()}
+              className="rounded-lg p-2 px-5 border border-yel text-gray-300 hover:bg-yel hover:text-gray-800 transition-all"
+            >
               Save Changes
             </button>
           </div>
         </div>
       </div>
 
-      <div className="w-4/5 my-10 mx-auto bg-gray-800 rounded-lg px-20 py-10 flex justify-around">
-        <h3 className="text-xl text-white font-semibold mb-4">Recent Items</h3>
+      <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
+        <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
+          Recent Items
+        </h3>
         <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
           <div className="flex gap-10 w-[100vw]">
-            {recentRecipes.map((recipe: any) => (
-              <RecipeCard recipeItem={recipe} key={recipe?.id} />
+            {recentRecipes.map((recipe: any, index: number) => (
+              <RecipeCard
+                recipeItem={recipe}
+                key={recipe?.id}
+                isRecent={true}
+              />
             ))}
           </div>
         </div>
       </div>
+
+      {/* EDIT DETAILS MODAL */}
+      <Modal
+        open={showEditModal}
+        onCancel={() => setShowEditModal(false)}
+        footer={null}
+        className="my-modal my-10"
+        zIndex={1050}
+        closable={false}
+        centered
+      >
+        <div className="text-gray-300 text-center">
+          <p className="text-2xl text-center font-semibold text-gray-300 mb-3">
+            Edit Personal Details
+          </p>
+          {editAvatar ? (
+            <div>
+              <h1 className="font-semibold text-2xl my-3 text-yel">
+                Choose yourself 🤠
+              </h1>
+              <div className="grid grid-cols-3 my-8 place-items-center gap-4">
+                {getRandomAvatars().map((avt) => (
+                  <img
+                    src={avt}
+                    className="w-28 h-28 border border-yel p-1 rounded-full object-cover hover:scale-110 transition-all cursor-pointer"
+                    alt="Select this avatar"
+                    onClick={() => setAvatar(avt)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="px-10">
+              <div className="flex justify-center items-center gap-5 my-5">
+                <img
+                  src={(userDetails?.avatar as string) || "/assets/default.jpg"}
+                  alt=""
+                  className="rounded-full p-1 border border-yel w-24 h-24"
+                />
+                <button
+                  onClick={() => setEditAvatar(true)}
+                  className="cursor-pointer bg-yel hover:bg-yel2 transition-all text-white px-4 py-2 rounded-lg"
+                >
+                  Change Avatar
+                </button>
+              </div>
+              <div className="flex justify-between">
+                <div className="mb-3 text-xl">
+                  <label className="text-left">
+                    <p>First name</p>
+                  </label>
+                  <Input
+                    placeholder="Enter your first name..."
+                    value={userDetails?.firstName}
+                    onChange={(e) =>
+                      setUserDetails((state: any) => ({
+                        ...state,
+                        firstName: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="mb-3 text-xl">
+                  <label className="text-left">
+                    <p>Last name</p>
+                  </label>
+                  <Input
+                    placeholder="Enter your last name..."
+                    value={userDetails?.lastName}
+                    onChange={(e) =>
+                      setUserDetails((state: any) => ({
+                        ...state,
+                        lastName: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="my-3 text-xl">
+                <label className="text-left">
+                  <p>Username</p>
+                </label>
+                <Input
+                  placeholder="Enter your username..."
+                  value={userDetails?.username}
+                  onChange={(e) =>
+                    setUserDetails((state: any) => ({
+                      ...state,
+                      username: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="my-3 text-xl">
+                <label className="text-left">
+                  <p>Enter you Bio</p>
+                </label>
+                <TextArea
+                  className="w-full p-3 text-white rounded-lg"
+                  placeholder="Tell us about yourself..."
+                  value={userDetails?.bio}
+                  onChange={(e) =>
+                    setUserDetails((state: any) => ({
+                      ...state,
+                      bio: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex gap-5 my-5 text-xl justify-center">
+            <button
+              className="border border-yel hover:bg-yel hover:text-dark transition-all rounded-lg p-1 px-6"
+              onClick={() => saveDetails()}
+            >
+              Save Changes
+            </button>
+            <button
+              className="rounded-lg p-1 px-6 border border-gray-600 hover:bg-gray-600 transition-all"
+              onClick={() => setShowEditModal(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* REMOVE ACCOUNT MODAL */}
+      <Modal
+        open={showRemoveModal}
+        onCancel={() => setShowRemoveModal(false)}
+        footer={null}
+        className="my-modal"
+        zIndex={1050}
+        closable={false}
+        centered
+      >
+        <div className="text-xl text-gray-300 text-center">
+          <p>
+            Do you want to discontinue from{" "}
+            <b className="text-yel"> Flav-Ur ? </b>
+          </p>
+          <div className="flex gap-5 my-5 justify-center">
+            <button
+              className="border border-red-500 hover:bg-red-500 transition-all rounded-lg p-1 px-6"
+              onClick={() => removeUser()}
+            >
+              Confirm
+            </button>
+
+            <button
+              className="rounded-lg p-1 px-6 border border-gray-600 hover:bg-gray-600 transition-all"
+              onClick={() => setShowLogOutModal(false)}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* LOGOUT MODAL */}
       <Modal
@@ -188,12 +463,9 @@ const Profile = () => {
             Do you want to log out from <b className="text-yel"> Flav-Ur ? </b>
           </p>
           <div className="flex gap-5 my-5 justify-center">
-            <button
-              className="rounded-lg p-1 px-6 border border-gray-600 hover:bg-gray-600 transition-all"
-              onClick={logout}
-            >
-              Yes
-            </button>
+            <div className="border border-yel hover:bg-yel hover:text-dark transition-all rounded-lg p-1 px-6">
+              <SignOutButton redirectUrl="/login" />
+            </div>
             <button
               className="rounded-lg p-1 px-6 border border-gray-600 hover:bg-gray-600 transition-all"
               onClick={() => setShowLogOutModal(false)}

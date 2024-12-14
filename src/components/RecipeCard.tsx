@@ -1,30 +1,28 @@
 import { getRating, getTime, truncateText } from "@/helper";
 import { store } from "@/store";
 import { Tooltip } from "antd";
-import axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
+import Recipe from "@/helper/recipe";
 import { BiFoodTag } from "react-icons/bi";
-import { FaAppleAlt, FaCircle, FaClock, FaStar } from "react-icons/fa";
+import { FaClock, FaStar } from "react-icons/fa";
 import { GoClock } from "react-icons/go";
 import { MdHealthAndSafety } from "react-icons/md";
 import { TbBowlSpoonFilled } from "react-icons/tb";
+import { FaClockRotateLeft } from "react-icons/fa6";
+import moment from "moment";
 
 const RecipeCard = ({ recipeItem, isRecent }: any) => {
-  const healthScore = recipeItem.healthScore;
-
-  const { _id } = store();
-
   const addRecentItem = async () => {
     try {
-      const response = await axios.post(`/api/recipe/recent`, {
-        userId: _id,
-        recipeId: recipeItem._id,
+      const response = await Recipe.addRecentRecipe({
+        id: recipeItem.id,
         image: recipeItem?.image,
         title: recipeItem?.title,
         servings: recipeItem?.servings,
         readyInMinutes: recipeItem?.readyInMinutes,
         spoonacularScore: recipeItem?.spoonacularScore,
         vegetarian: recipeItem?.vegetarian,
+        healthScore: recipeItem?.healthScore,
       });
 
       console.log(response);
@@ -34,14 +32,12 @@ const RecipeCard = ({ recipeItem, isRecent }: any) => {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg pb-4">
-      <div className="">
-        <img
-          src={recipeItem?.image}
-          alt={recipeItem?.title}
-          className="w-[60rem] rounded-t-lg"
-        />
-      </div>
+    <div className="!w-[60rem] bg-gray-800 rounded-lg pb-4">
+      <img
+        src={recipeItem?.image}
+        alt={recipeItem?.title}
+        className="w-[60rem] rounded-t-lg"
+      />
       <div className="px-3 py-2">
         <Tooltip
           title={recipeItem?.title?.length > 20 ? recipeItem.title : ""}
@@ -66,7 +62,7 @@ const RecipeCard = ({ recipeItem, isRecent }: any) => {
         <div className="flex justify-between items-center text-lg my-2 text-gray-400">
           <div className="flex items-center gap-2 text-gray-400">
             <MdHealthAndSafety className="text-green-400" />
-            <span>Health Score: {healthScore}</span>
+            <span>Health Score: {recipeItem?.healthScore}</span>
           </div>
 
           <div
@@ -99,13 +95,21 @@ const RecipeCard = ({ recipeItem, isRecent }: any) => {
           </div>
         </div>
       </div>
+      <div className="flex flex-col items-center">
+        <button
+          className="mt-4 w-3/4 bg-yellow-500 hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
+          onClick={() => addRecentItem()}
+        >
+          View Recipe
+        </button>
 
-      <button
-        className="mt-4 w-3/4 bg-yellow-500 hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
-        // onClick={() => addRecentItem()}
-      >
-        View Recipe
-      </button>
+        {isRecent && (
+          <div className="flex items-center gap-1 text-gray-400 justify-center mt-2">
+            <FaClockRotateLeft />
+            {moment(recipeItem?.updatedAt)?.fromNow()}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

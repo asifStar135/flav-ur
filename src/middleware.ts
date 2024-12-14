@@ -1,21 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const publicRoutes = ["/login", "/signup"];
+const isPublic = createRouteMatcher(["/login(.*)", "/signup(.*)"]);
 
-export const middleware = async (req: NextRequest) => {
-  try {
-    const token = req.cookies.get("token");
-    const isPublic = publicRoutes.includes(req.nextUrl.pathname);
-
-    if (!token && !isPublic)
-      return NextResponse.redirect(new URL("/login", req.nextUrl));
-    else if (token && isPublic)
-      return NextResponse.redirect(new URL("/", req.nextUrl));
-  } catch (err) {
-    NextResponse.redirect(new URL("/login", req.nextUrl));
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublic(request)) {
+    await auth.protect();
   }
-};
+});
 
 export const config = {
-  matcher: ["/", "/profile", "/login", "/signup", "/discover", "/cookbook"],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 };

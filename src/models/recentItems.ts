@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const RecentItemsSchema = new mongoose.Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
+      type: String,
       required: true,
     },
-    recipeId: {
+    //  this is recipe Id
+    id: {
       type: Number,
       required: true,
     },
@@ -39,5 +39,5 @@ const RecentItemsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.recentItems ||
-  mongoose.model("recentItems", RecentItemsSchema);
+export default mongoose.models.recent_items ||
+  mongoose.model("recent_items", RecentItemsSchema);
