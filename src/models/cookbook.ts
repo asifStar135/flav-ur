@@ -1,40 +1,47 @@
 import mongoose from "mongoose";
 
-const userModel = new mongoose.Schema({
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
-    required: true,
+const cookBookModel = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
+    recipeId: {
+      type: Number,
+      required: true,
+    },
+    image: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    healthScore: {
+      type: Number,
+      default: 0,
+    },
+    vegetarian: {
+      type: Boolean,
+      default: false,
+    },
+    servings: {
+      type: Number,
+    },
+    readyInMinutes: {
+      type: Number,
+    },
+    spoonacularScore: {
+      type: Number,
+    },
+    notes: {
+      type: String,
+      default: "",
+    },
   },
-  recipeId: {
-    type: Number,
-    required: true,
-  },
-  image: {
-    type: String,
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  healthScore: {
-    type: Number,
-    default: 0,
-  },
-  vegetarian: {
-    type: Boolean,
-    default: false,
-  },
-  servings: {
-    type: Number,
-  },
-  readyInMinutes: {
-    type: Number,
-  },
-  spoonacularScore: {
-    type: Number,
-  },
-});
+  { timestamps: true }
+);
 
-export default mongoose.models.users || mongoose.model("users", userModel);
+export default mongoose.models.cookbook ||
+  mongoose.model("cookbook", cookBookModel);

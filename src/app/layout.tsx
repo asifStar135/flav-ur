@@ -3,17 +3,11 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/Header";
 import { ConfigProvider } from "antd";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
-  title: "Flav-Ur",
+  title: "Flav'Ur",
   description: "Flavour of you good times..",
 };
 

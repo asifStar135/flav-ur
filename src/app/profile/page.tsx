@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { Input, Modal, Popover, Select, Switch } from "antd";
 import { Options } from "@/helper/recipe";
@@ -11,6 +11,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import TextArea from "antd/es/input/TextArea";
+import { CiSquarePlus } from "react-icons/ci";
 
 const Profile = () => {
   //  LOAD Profile DETAILS
@@ -26,13 +27,15 @@ const Profile = () => {
   const [userDetails, setUserDetails] = useState<any>(null);
   //   Recent Recipes
   const [recentRecipes, setRecentRecipes] = useState<any>([]);
-  const [recentPageNo, setRecentPageNo] = useState<number>(0);
+  const recentPageNo = useRef(0);
 
   const fetchRecentRecipes = async () => {
     try {
-      const recentItems = await Recipe.fetchRecentRecipe(recentPageNo);
-      console.log(recentItems);
+      const recentItems = await Recipe.fetchRecentRecipe(recentPageNo.current);
       setRecentRecipes((state: Array<any>) => state?.concat(recentItems));
+      if (recentItems.length < 5) {
+        recentPageNo.current = -1;
+      }
     } catch (error) {
       console.error(error);
     }
@@ -135,8 +138,8 @@ const Profile = () => {
   }, [isLoaded, user]);
 
   useEffect(() => {
-    if (recentPageNo == 0) fetchRecentRecipes();
-  }, [recentPageNo]);
+    if (recentPageNo.current == 0) fetchRecentRecipes();
+  }, []);
 
   return isLoaded ? (
     <div>
@@ -275,16 +278,21 @@ const Profile = () => {
         <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
           Recent Items
         </h3>
-        <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
-          <div className="flex gap-10 w-[100vw]">
-            {recentRecipes.map((recipe: any, index: number) => (
-              <RecipeCard
-                recipeItem={recipe}
-                key={recipe?.id}
-                isRecent={true}
-              />
-            ))}
-          </div>
+        <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
+          {/* <div className="flex gap-10 w-[100vw]"> */}
+          {recentRecipes.map((recipe: any, index: number) => (
+            <RecipeCard recipeItem={recipe} key={recipe?.id} isRecent={true} />
+          ))}
+          {recentPageNo.current != -1 && (
+            <div
+              className="text-2xl cursor-pointer flex flex-col gap-10 items-center justify-center border-2 border-yel rounded-xl py-10 px-3 h-auto my-10"
+              onClick={() => fetchRecentRecipes()}
+            >
+              <p>Load more</p>
+              <CiSquarePlus className="text-4xl text-yel" />
+            </div>
+          )}
+          {/* </div> */}
         </div>
       </div>
 

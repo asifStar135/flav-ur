@@ -36,7 +36,7 @@ const RecipeCard = ({ recipeItem, isRecent }: any) => {
       <img
         src={recipeItem?.image}
         alt={recipeItem?.title}
-        className="w-[60rem] rounded-t-lg"
+        className="rounded-t-lg w-[20vw]"
       />
       <div className="px-3 py-2">
         <Tooltip

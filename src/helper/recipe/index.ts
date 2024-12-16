@@ -44,8 +44,10 @@ export default {
   fetchRecentRecipe: async (page: number) => {
     try {
       const { data } = await axios.get(`/api/recipe/recent?page=${page}`);
-      console.log(data);
       if (data.success) {
+        if (data?.recentItems?.length == 0) {
+          toast.error("No more recent recipes found.");
+        }
         return data?.recentItems;
       } else toast.error(data.error);
     } catch (error) {

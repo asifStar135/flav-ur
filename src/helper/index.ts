@@ -1,40 +1,8 @@
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import bcryptjs from "bcryptjs";
-import { NextRequest } from "next/server";
-import { User } from "@/models";
-
-export const generateToken = (
-  userId: mongoose.Types.ObjectId,
-  username: string
-) => {
-  // generate token using jwt token
-  const token = jwt.sign({ userId, username }, process.env.TOKEN_SECRET!, {
-    expiresIn: "10h",
-  });
-  return token;
-};
 
 export const truncateText = (text: string, length: number): string => {
   if (text?.length <= length) return text;
   return text?.substring(0, length - 2)?.trim() + "...";
-};
-
-export const validatePassword = async (
-  enteredPassword: string,
-  originalPassword: string
-) => {
-  return await bcryptjs.compare(enteredPassword, originalPassword);
-};
-
-// validate token using jwt token
-export const validateToken: any = (token: string) => {
-  try {
-    return jwt.verify(token, process.env.TOKEN_SECRET!);
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
 };
 
 export const getRating = (score: number) => {

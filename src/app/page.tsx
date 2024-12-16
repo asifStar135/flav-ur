@@ -2,8 +2,10 @@
 
 import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/helper";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import { BsStars } from "react-icons/bs";
+import { GrSearchAdvanced } from "react-icons/gr";
 import { RiRefreshLine } from "react-icons/ri";
 import { RxCrossCircled } from "react-icons/rx";
 
@@ -26,15 +28,32 @@ export default function Home() {
 
   return (
     <div className="my-8 px-10 text-center">
-      {/* WELCOME SECTION  */}
+      {/* WELCOME SECTION WITH INVITATION TO DISCOVER PAGE */}
       <div className="flex justify-between items-center px-20 py-14">
         <div>
-          <h1 className="text-4xl mb-10">
+          <h1 className="text-4xl">
             Welcome back <b className="text-yel">Chief !</b>
           </h1>
-          <h2 className="text-xl font-mono italic">
+          <h2 className="text-xl font-mono italic my-5">
             Explore thousands of recipes to ignite your culinary passion!
           </h2>
+          <div className="my-7 shadow-lg shadow-gray-700 bg-gray-700 py-3 px-6 rounded-2xl">
+            <p className="font-medium text-xl">
+              Discover Meals/Snacks/Deserts that fits your preferences only in{" "}
+              <b className="text-yel text-2xl">Flav'Ur !</b>{" "}
+            </p>
+            <p className="text-gray-400 my-2">
+              Explore thousands of recipes by name, meal types, diet and others
+              with detailed nutritional information
+            </p>
+            <Link
+              href="/discover"
+              className="flex my-3 justify-center w-1/2 mx-auto font-semibold items-center gap-5 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
+            >
+              <span>Discover yours</span>
+              <GrSearchAdvanced className="text-3xl" />
+            </Link>
+          </div>
         </div>
         <img
           src="/assets/cook.png"
@@ -75,7 +94,7 @@ export default function Home() {
             </div>
           ) : (
             <div
-              className="flex cursor-pointer hover:shadow-yel hover:shadow-md font-semibold items-center gap-2 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
+              className="flex cursor-pointer shadow-yel hover:shadow-md font-semibold items-center gap-2 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
               onClick={() => openRandomRecipes()}
             >
               <span>Generate Recipes</span>
@@ -89,13 +108,25 @@ export default function Home() {
 
             <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
               <div className="flex gap-10 w-[100vw]">
-                {randomRecipes.map((recipe, index) => (
+                {randomRecipes?.map((recipe, index) => (
                   <RecipeCard recipeItem={recipe} key={recipe?.id} />
                 ))}
               </div>
             </div>
           </div>
         )}
+      </div>
+
+      {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
+      <div className="my-5">
+        <p className="text-2xl font-semibold text-gray-200">
+          Today's recipes just for you
+        </p>
+        <div className="grid grid-cols-4 justify-around gap-5">
+          {randomRecipes?.map((recipe, index) => (
+            <RecipeCard recipeItem={recipe} key={recipe?.id} />
+          ))}
+        </div>
       </div>
     </div>
   );
