@@ -11,7 +11,7 @@ import { TbBowlSpoonFilled } from "react-icons/tb";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import moment from "moment";
 
-const RecipeCard = ({ recipeItem, isRecent }: any) => {
+const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
   const addRecentItem = async () => {
     try {
       const response = await Recipe.addRecentRecipe({
@@ -32,21 +32,21 @@ const RecipeCard = ({ recipeItem, isRecent }: any) => {
   };
 
   return (
-    <div className="!w-[60rem] bg-gray-800 rounded-lg pb-4">
+    <div className={cardWidth + " bg-gray-800 rounded-lg pb-2 self-center"}>
       <img
         src={recipeItem?.image}
         alt={recipeItem?.title}
-        className="rounded-t-lg w-[20vw]"
+        className={"rounded-t-lg " + cardWidth}
       />
       <div className="px-3 py-2">
         <Tooltip
           title={recipeItem?.title?.length > 20 ? recipeItem.title : ""}
           color="#2b3348"
-          className="cursor-pointer text-lg font-semibold text-gray-200"
+          className="cursor-pointer text-lg text-center font-semibold text-gray-300"
           overlayStyle={{ maxWidth: "200px" }} // Optional: Set max width for the tooltip
           placement="top" // Optional: Adjust placement
         >
-          {truncateText(recipeItem?.title, 20)}
+          {truncateText(recipeItem?.title, 25)}
         </Tooltip>
         <div className="flex justify-between items-center text-lg my-2 text-gray-400">
           <div className="flex items-center gap-2">

@@ -15,6 +15,23 @@ const client = axios.create({
 
 // Export functions for API calls
 export default {
+  getRecommendedRecipes: async (pageNo: number, preferences: any) => {
+    return Random;
+
+    const { data } = await client.get("/recipes/complexSearch", {
+      params: {
+        cuisine: preferences?.cuisine,
+        diet: preferences?.diet,
+        addRecipeInformation: true,
+        intolerences: `${preferences?.glutenFree ? "Gluten," : ""}${
+          preferences?.dairyFree ? "Dairy," : ""
+        } ${preferences?.allergies}`,
+        page: pageNo,
+      },
+    });
+
+    return data?.results;
+  },
   getRandomRecipe: async () => {
     try {
       return Random;

@@ -279,20 +279,29 @@ const Profile = () => {
           Recent Items
         </h3>
         <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
-          {/* <div className="flex gap-10 w-[100vw]"> */}
-          {recentRecipes.map((recipe: any, index: number) => (
-            <RecipeCard recipeItem={recipe} key={recipe?.id} isRecent={true} />
-          ))}
-          {recentPageNo.current != -1 && (
-            <div
-              className="text-2xl cursor-pointer flex flex-col gap-10 items-center justify-center border-2 border-yel rounded-xl py-10 px-3 h-auto my-10"
-              onClick={() => fetchRecentRecipes()}
-            >
-              <p>Load more</p>
-              <CiSquarePlus className="text-4xl text-yel" />
-            </div>
-          )}
-          {/* </div> */}
+          <div
+            className={`flex gap-8 px-4 w-[${
+              recentRecipes.length * 21 + 10
+            }vw]`}
+          >
+            {recentRecipes.map((recipe: any, index: number) => (
+              <RecipeCard
+                recipeItem={recipe}
+                key={recipe?.id}
+                isRecent={true}
+                cardWidth="w-[20vw]"
+              />
+            ))}
+            {recentPageNo.current != -1 && (
+              <div
+                className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 p-3"
+                onClick={() => fetchRecentRecipes()}
+              >
+                <p>More</p>
+                <CiSquarePlus className="text-4xl" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

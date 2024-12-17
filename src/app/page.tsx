@@ -2,21 +2,35 @@
 
 import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/helper";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsStars } from "react-icons/bs";
+import { CiSquarePlus } from "react-icons/ci";
 import { GrSearchAdvanced } from "react-icons/gr";
 import { RiRefreshLine } from "react-icons/ri";
 import { RxCrossCircled } from "react-icons/rx";
 
 export default function Home() {
   const [randomRecipes, setRandomRecipes] = useState<any[]>([]);
+  const [recommendedRecipes, setRecommendedRecipes] = useState<any[]>([]);
   const [showRandomRecipes, setShowRandomRecipes] = useState(false);
+  const pageNo = useRef(0);
+  const { user } = useUser();
 
   const fetchRandomRecipes = async () => {
     const response = await Recipe.getRandomRecipe();
     setRandomRecipes(response!.recipes);
     console.log(response?.recipes);
+  };
+
+  const fetchRecommendedRecipes = async () => {
+    const recipes = await Recipe.getRecommendedRecipes(
+      pageNo.current,
+      user?.unsafeMetadata?.preference
+    );
+    setRecommendedRecipes((prev) => prev.concat(recipes));
+    pageNo.current++;
   };
 
   const openRandomRecipes = async () => {
@@ -25,6 +39,11 @@ export default function Home() {
     }
     setShowRandomRecipes(true);
   };
+
+  useEffect(() => {
+    if (user?.unsafeMetadata?.preference) fetchRecommendedRecipes();
+    console.log(user?.unsafeMetadata);
+  }, [user]);
 
   return (
     <div className="my-8 px-10 text-center">
@@ -107,9 +126,13 @@ export default function Home() {
             <div className="w-full border-t rounded-full my-8 border-gray-400"></div>
 
             <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
-              <div className="flex gap-10 w-[100vw]">
+              <div className="flex gap-10 w-[110vw]">
                 {randomRecipes?.map((recipe, index) => (
-                  <RecipeCard recipeItem={recipe} key={recipe?.id} />
+                  <RecipeCard
+                    recipeItem={recipe}
+                    key={recipe?.id}
+                    cardWidth="w-[19vw]"
+                  />
                 ))}
               </div>
             </div>
@@ -118,14 +141,26 @@ export default function Home() {
       </div>
 
       {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
-      <div className="my-5">
-        <p className="text-2xl font-semibold text-gray-200">
-          Today's recipes just for you
+      <div className="my-10 p-2 pb-5 rounded-xl border-r border-l border-yel ">
+        <p className="text-3xl font-semibold text-gray-200 mb-7">
+          <span className="text-yel">Today's </span>
+          recipes just for you
         </p>
-        <div className="grid grid-cols-4 justify-around gap-5">
-          {randomRecipes?.map((recipe, index) => (
-            <RecipeCard recipeItem={recipe} key={recipe?.id} />
+        <div className="flex flex-wrap gap-6 px-4 justify-center">
+          {recommendedRecipes?.map((recipe, index) => (
+            <RecipeCard
+              recipeItem={recipe}
+              key={recipe?.id}
+              cardWidth="w-[270px]"
+            />
           ))}
+        </div>
+        <div
+          className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 mx-auto p-3"
+          onClick={() => fetchRecommendedRecipes()}
+        >
+          <p>More</p>
+          <CiSquarePlus className="text-4xl" />
         </div>
       </div>
     </div>
