@@ -1,19 +1,23 @@
 "use client";
-import { Recipe } from "@/helper";
+import RecipeCard from "@/components/RecipeCard";
+import { Recipe, truncateText } from "@/helper";
 import { Options } from "@/helper/recipe";
 import { Input, Modal, Radio, Select, Slider } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BsFillFilterCircleFill } from "react-icons/bs";
+import { CiSquarePlus } from "react-icons/ci";
 import { GiFastBackwardButton, GiFastForwardButton } from "react-icons/gi";
-import { GrSearchAdvanced } from "react-icons/gr";
+import { GrKeyboard, GrSearchAdvanced } from "react-icons/gr";
 import { IoSearchCircleOutline } from "react-icons/io5";
 import { LuSettings2 } from "react-icons/lu";
+const imageBaseUrl = "https://img.spoonacular.com/recipes/";
 
 const Discover = () => {
   const [isFilter, setIsFilter] = useState(true);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filterResult, setFilterResult] = useState([]);
-  const [pageNo, setPageNo] = useState(0);
+  const [searchResult, setSearchResult] = useState([]);
+  const pageNo = useRef(0);
   const [options, setOptions] = useState({
     cuisines: Options.cuisines,
     excludeCuisines: Options.cuisines,
@@ -21,45 +25,43 @@ const Discover = () => {
     diets: Options.dietTypes,
   });
 
-  const [filter, setFilter] = useState({
-    //  taste Matters
-    mealType: "",
-    cuisine: "",
-    excludeCuisine: "",
-    // Diet Matters
-    diet: "",
-    minCalories: 10,
-    maxCalories: 1000,
-    minProtein: 0,
-    maxProtein: 90,
-    //  Requirements
-    equipments: "",
-    ingredients: "",
-    excludeIngredients: "",
-    maxReadyTime: 30,
-    // Other filters
-    intolerances: "",
-    minServings: 0,
-    maxServings: 10,
-    sort: "",
-    sortDirection: "asc",
-  });
+  const [filter, setFilter] = useState(Options.defaultFilters);
+  const [isFilterChanged, setIsFilterChanged] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  const handleChangeInFilters = (name: string, value: any) => {
+    setFilter((state) => ({ ...state, [name]: value }));
+    setIsFilterChanged(true);
+  };
+
+  const handleClearFilter = () => {
+    setFilter(Options.defaultFilters);
+    setIsFilterChanged(false);
+  };
+
   const submitFilters = async (isNew: boolean) => {
     setShowFilterModal(false);
-    console.log(filter);
-    const result = await Recipe?.getFilteredRecipes(0, filter, searchQuery);
+    const result = await Recipe?.getFilteredRecipes(
+      pageNo.current,
+      filter,
+      searchQuery
+    );
     if (isNew) {
       setFilterResult(result);
     } else {
       setFilterResult((prev) => prev?.concat(result));
     }
+    pageNo.current++;
+  };
+
+  const switchModes = () => {
+    setSearchQuery("");
+    setIsFilter(!isFilter);
   };
 
   useEffect(() => {
-    if (!isFilter) return;
+    if (isFilter) return;
     const timerHandler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
     }, 500);
@@ -68,6 +70,15 @@ const Discover = () => {
       clearTimeout(timerHandler);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (debouncedQuery?.length > 2) {
+      Recipe?.getTitleSuggestions(debouncedQuery).then((result) => {
+        console.log("first result: " + result);
+        setSearchResult(result);
+      });
+    } else setSearchResult([]);
+  }, [debouncedQuery]);
 
   useEffect(() => {
     if (filter?.cuisine) {
@@ -99,7 +110,7 @@ const Discover = () => {
           className={
             (isFilter ? "bg-yel text-dark" : "") + " rounded-l-lg p-2 w-1/2 p"
           }
-          onClick={() => setIsFilter(true)}
+          onClick={() => switchModes()}
         >
           Apply filters with a query
         </div>
@@ -108,7 +119,7 @@ const Discover = () => {
             (isFilter == false ? "bg-yel text-dark" : "") +
             " rounded-r-lg p-2 w-1/2"
           }
-          onClick={() => setIsFilter(false)}
+          onClick={() => switchModes()}
         >
           Search recipes by name
         </div>
@@ -117,77 +128,144 @@ const Discover = () => {
       <div className="my-4 w-[60%] mx-auto bg-gray-800 p-5 rounded-xl">
         <div className="flex items-center gap-8 mb-4">
           <Input
-            placeholder="Type any keyword . . ."
+            placeholder={
+              isFilter
+                ? "Type any query to filter results..."
+                : "Search recipes by name..."
+            }
+            autoFocus
             className="rounded-xl border-yel text-2xl px-5"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchQuery}
+            allowClear
           />
           <GrSearchAdvanced className="text-yel text-4xl" />
         </div>
 
-        {isFilter && (
-          <div className="flex justify-between px-3">
-            <div className="flex justify-center items-end gap-5">
-              <Select
-                title="Select meal type "
-                allowClear
-                placeholder="Select meal type..."
-                className="w-48 mb-3 text-lg"
-                options={options.mealTypes}
-                showSearch
-                value={filter?.mealType || undefined}
-                onChange={(value: string) =>
-                  setFilter((state: any) => ({ ...state, mealType: value }))
-                }
-              />
-              <Select
-                title="choose your cuisine"
-                allowClear
-                placeholder="Select cuisine..."
-                className="w-48 mb-3 text-lg"
-                options={options.cuisines}
-                showSearch
-                value={filter?.cuisine || undefined}
-                onChange={(value: string) =>
-                  setFilter((state: any) => ({ ...state, cuisine: value }))
-                }
-              />
-              <div>
-                <p className="text-center">
-                  Max time to prepare :{" "}
-                  <b className="text-yel">{filter?.maxReadyTime} Mins</b>
-                </p>
-                <Slider
-                  max={120}
-                  className="w-52"
-                  onChange={(value) => {
-                    setFilter((state: any) => ({
-                      ...state,
-                      maxReadyTime: value,
-                    }));
-                  }}
-                  value={filter?.maxReadyTime}
+        {isFilter ? (
+          <div>
+            <div className="flex justify-between px-3">
+              <div className="flex justify-center items-end gap-5">
+                <Select
+                  title="Select meal type "
+                  allowClear
+                  placeholder="Select meal type..."
+                  className="w-48 mb-3 text-lg"
+                  options={options.mealTypes}
+                  showSearch
+                  value={filter?.mealType || undefined}
+                  onChange={(value: string) =>
+                    handleChangeInFilters("mealType", value)
+                  }
                 />
+                <Select
+                  title="choose your cuisine"
+                  allowClear
+                  placeholder="Select cuisine..."
+                  className="w-48 mb-3 text-lg"
+                  options={options.cuisines}
+                  showSearch
+                  value={filter?.cuisine || undefined}
+                  onChange={(value: string) =>
+                    handleChangeInFilters("cuisine", value)
+                  }
+                />
+                <div>
+                  <p className="text-center">
+                    Max time to prepare :{" "}
+                    <b className="text-yel">{filter?.maxReadyTime} Mins</b>
+                  </p>
+                  <Slider
+                    max={120}
+                    className="w-52"
+                    onChange={(value) => {
+                      handleChangeInFilters("maxReadyTime", value);
+                    }}
+                    value={filter?.maxReadyTime}
+                  />
+                </div>
+              </div>
+
+              <div
+                className="flex text-lg gap-3 items-center border cursor-pointer text-gray-300 self-center hover:bg-yel hover:text-dark transition-all border-yel rounded-xl px-2 py-1"
+                onClick={() => setShowFilterModal(true)}
+              >
+                <span>More</span>
+                <LuSettings2 className="text-2xl" />
               </div>
             </div>
-
-            <div
-              className="flex text-lg gap-3 items-center border cursor-pointer text-gray-300 self-center hover:bg-yel hover:text-dark transition-all border-yel rounded-xl px-2 py-1"
-              onClick={() => setShowFilterModal(true)}
-            >
-              <span>More</span>
-              <LuSettings2 className="text-2xl" />
+            <div className="flex items-center justify-center gap-10 mt-5">
+              {isFilterChanged && (
+                <button
+                  className="px-6 py-2 border border-gray-400 hover:bg-gray-400 hover:text-gray-800 hover:scale-110 transition-all text-gray-400 text-2xl rounded-xl"
+                  onClick={() => handleClearFilter()}
+                >
+                  Clear filters
+                </button>
+              )}
+              <button
+                className="px-6 py-3 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
+                onClick={() => submitFilters(true)}
+              >
+                Get Results
+              </button>
             </div>
           </div>
+        ) : (
+          <div>
+            {searchResult?.length > 0 ? (
+              <div className="flex flex-col w-2/3 gap-3 overflow-y-auto max-h-[50vh] scrollbar-hidden mx-auto">
+                {searchResult?.map((item: any) => (
+                  <div className="flex gap-3 items-center p-1 border border-t-0 rounded-full border-gray-600">
+                    <img
+                      src={
+                        imageBaseUrl + item?.id + "-90x90." + item?.imageType
+                      }
+                      alt="Recipe search"
+                      className="w-20 rounded-full border border-yel"
+                    />
+                    <h1 className="text-2xl text-gray-300">
+                      {truncateText(item?.title, 40)}
+                    </h1>
+                  </div>
+                ))}
+              </div>
+            ) : debouncedQuery?.length < 3 ? (
+              <p className="text-2xl text-gray-300 text-center my-8">
+                Type at least 3 characters to get results !
+              </p>
+            ) : (
+              <p className="text-2xl text-gray-400 my-8 text-center">
+                No Result for '<span className="text-yel">{searchQuery}</span>'
+                !
+                <br /> Try something else{" "}
+              </p>
+            )}
+          </div>
         )}
-
-        <div className="text-center mt-5">
-          <button
-            className="px-6 py-3 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
-            onClick={() => submitFilters(true)}
-          >
-            Get Results
-          </button>
-        </div>
       </div>
+
+      {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
+      {filterResult?.length ? (
+        <div className="my-10 p-10 w-11/12 mx-auto pb-5 rounded-xl border-r border-l border-yel ">
+          <div className="flex flex-wrap gap-8 justify-center">
+            {filterResult?.map((recipe: any, index) => (
+              <RecipeCard
+                recipeItem={recipe}
+                key={recipe?.id}
+                cardWidth="w-[270px]"
+              />
+            ))}
+          </div>
+          <div
+            className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark hover:scale-110 transition-all rounded-xl w-40 mx-auto p-2 mt-5"
+            onClick={() => submitFilters(false)}
+          >
+            <p>More</p>
+            <CiSquarePlus className="text-4xl" />
+          </div>
+        </div>
+      ) : null}
 
       <Modal
         open={showFilterModal}
@@ -219,7 +297,7 @@ const Discover = () => {
                   value={filter?.mealType}
                   showSearch
                   onChange={(value: string) =>
-                    setFilter((state: any) => ({ ...state, mealType: value }))
+                    handleChangeInFilters("mealType", value)
                   }
                 />
               </div>
@@ -234,7 +312,7 @@ const Discover = () => {
                   showSearch
                   value={filter?.cuisine || undefined}
                   onChange={(value: string) =>
-                    setFilter((state: any) => ({ ...state, cuisine: value }))
+                    handleChangeInFilters("cuisine", value)
                   }
                 />
               </div>
@@ -249,10 +327,7 @@ const Discover = () => {
                   showSearch
                   value={filter?.excludeCuisine || undefined}
                   onChange={(value: string) =>
-                    setFilter((state: any) => ({
-                      ...state,
-                      excludeCuisine: value,
-                    }))
+                    handleChangeInFilters("excludeCuisines", value)
                   }
                 />
               </div>
@@ -275,7 +350,7 @@ const Discover = () => {
                   showSearch
                   value={filter?.diet || undefined}
                   onChange={(value: string) =>
-                    setFilter((state: any) => ({ ...state, diet: value }))
+                    handleChangeInFilters("diet", value)
                   }
                 />
               </div>
@@ -292,11 +367,8 @@ const Discover = () => {
                   max={1500}
                   min={0}
                   onChange={([low, high]) => {
-                    setFilter((state: any) => ({
-                      ...state,
-                      minCalories: low,
-                      maxCalories: high,
-                    }));
+                    handleChangeInFilters("minCalories", low);
+                    handleChangeInFilters("maxCalories", high);
                   }}
                   value={[filter?.minCalories, filter?.maxCalories]}
                 />
@@ -314,11 +386,8 @@ const Discover = () => {
                   max={100}
                   min={0}
                   onChange={([low, high]) => {
-                    setFilter((state: any) => ({
-                      ...state,
-                      minProtein: low,
-                      maxProtein: high,
-                    }));
+                    handleChangeInFilters("minProtein", low);
+                    handleChangeInFilters("maxProtein", high);
                   }}
                   value={[filter?.minProtein, filter?.maxProtein]}
                 />
@@ -341,10 +410,7 @@ const Discover = () => {
                   allowClear
                   value={filter?.equipments || undefined}
                   onChange={(value) => {
-                    setFilter((prev) => ({
-                      ...prev,
-                      equipments: value,
-                    }));
+                    handleChangeInFilters("equipments", value);
                   }}
                   tokenSeparators={[","]}
                 />
@@ -359,10 +425,7 @@ const Discover = () => {
                   max={100}
                   min={0}
                   onChange={(value) => {
-                    setFilter((state: any) => ({
-                      ...state,
-                      maxReadyTime: value,
-                    }));
+                    handleChangeInFilters("maxReadyTime", value);
                   }}
                   value={filter?.maxReadyTime}
                 />
@@ -379,10 +442,7 @@ const Discover = () => {
                   allowClear
                   value={filter?.ingredients || undefined}
                   onChange={(value) => {
-                    setFilter((prev) => ({
-                      ...prev,
-                      ingredients: value,
-                    }));
+                    handleChangeInFilters("ingredients", value);
                   }}
                   tokenSeparators={[","]}
                 />
@@ -396,11 +456,7 @@ const Discover = () => {
                   allowClear
                   value={filter?.excludeIngredients || undefined}
                   onChange={(value) => {
-                    console.log(value);
-                    setFilter((prev) => ({
-                      ...prev,
-                      excludeIngredients: value,
-                    }));
+                    handleChangeInFilters("excludeIngredients", value);
                   }}
                   tokenSeparators={[","]}
                 />
@@ -423,10 +479,7 @@ const Discover = () => {
                   allowClear
                   value={filter?.intolerances || undefined}
                   onChange={(value) => {
-                    setFilter((prev) => ({
-                      ...prev,
-                      intolerances: value,
-                    }));
+                    handleChangeInFilters("intolerances", value);
                   }}
                   options={Options?.intolerances}
                   tokenSeparators={[","]}
@@ -434,20 +487,26 @@ const Discover = () => {
               </div>
               <div>
                 <p className="text-center text-lg">
-                  Max time to prepare :{" "}
-                  <b className="text-yel">{filter?.maxReadyTime} Mins</b>
+                  Servings you want to prepare :{" "}
+                  <b className="text-yel">
+                    {" "}
+                    {"(" +
+                      filter?.minServings +
+                      " - " +
+                      filter?.maxServings +
+                      ")"}
+                  </b>
                 </p>
                 <Slider
                   className="w-80"
-                  max={100}
+                  max={150}
+                  range
                   min={0}
-                  onChange={(value) => {
-                    setFilter((state: any) => ({
-                      ...state,
-                      maxReadyTime: value,
-                    }));
+                  onChange={([min, max]) => {
+                    handleChangeInFilters("minServings", min);
+                    handleChangeInFilters("maxServings", max);
                   }}
-                  value={filter?.maxReadyTime}
+                  value={[filter?.minServings, filter?.maxServings]}
                 />
               </div>
             </div>
@@ -493,7 +552,15 @@ const Discover = () => {
               </div>
             </div>
 
-            <div className="text-center">
+            <div className="flex items-center justify-center gap-10 mt-5">
+              {isFilterChanged && (
+                <button
+                  className="px-6 py-2 border border-gray-400 hover:bg-gray-400 hover:text-gray-800 hover:scale-110 transition-all text-gray-400 text-2xl rounded-xl"
+                  onClick={() => handleClearFilter()}
+                >
+                  Clear filters
+                </button>
+              )}
               <button
                 className="px-6 py-3 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
                 onClick={() => submitFilters(true)}

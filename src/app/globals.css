@@ -44,3 +44,7 @@ body {
 .my-modal .ant-modal-close {
   display: none;
 }
+.ant-input-clear-icon,
+.ant-select-arrow {
+  color: #d1d5db !important; /* Change clear icon color */
+}

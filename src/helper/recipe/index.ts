@@ -40,7 +40,7 @@ export default {
           minServings: filters?.minServings,
           maxServings: filters?.maxServings,
           sort: filters?.sort,
-          sortDirections: filters?.sortDirections,
+          sortDirection: filters?.sortDirection,
           addRecipeInformation: true,
           number: 10,
           offset: pageNo * 10,
@@ -52,10 +52,10 @@ export default {
   },
   getTitleSuggestions: async (query: string) => {
     try {
-      const { data } = await client.get("recipes/autoComplete", {
+      const { data } = await client.get("/recipes/autocomplete", {
         params: {
           query,
-          number: 10,
+          number: 25,
         },
       });
 
@@ -90,14 +90,13 @@ export default {
   },
   getRandomRecipe: async () => {
     try {
-      return Random;
-      // const { data } = await client.get("/recipes/random", {
-      //   params: {
-      //     number: 5, // Override default parameters
-      //     includeNutrition: false,
-      //   },
-      // });
-      // return data;
+      const { data } = await client.get("/recipes/random", {
+        params: {
+          number: 5, // Override default parameters
+          includeNutrition: false,
+        },
+      });
+      return data;
     } catch (error) {
       console.error(error);
       return null;

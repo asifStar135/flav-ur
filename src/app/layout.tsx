@@ -59,7 +59,7 @@ export default function RootLayout({
                   colorBgElevated: "#4b5563",
                   colorText: "#e5e7eb",
                   colorPrimary: "#6b7280",
-                  colorIcon: "white", // Arrow (icon) color
+                  colorIcon: "#9ca3af", // Arrow (icon) color
                   colorIconHover: "#f57c00", // Arrow color on hover
                 },
               }}

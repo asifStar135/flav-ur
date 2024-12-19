@@ -83,4 +83,35 @@ const sortingOptions = [
   { label: "Protein", value: "protein" },
 ];
 
-export default { cuisines, dietTypes, mealTypes, intolerances, sortingOptions };
+const defaultFilters = {
+  //  taste Matters
+  mealType: "",
+  cuisine: "",
+  excludeCuisine: "",
+  // Diet Matters
+  diet: "",
+  minCalories: 10,
+  maxCalories: 1000,
+  minProtein: 0,
+  maxProtein: 90,
+  //  Requirements
+  equipments: "",
+  ingredients: "",
+  excludeIngredients: "",
+  maxReadyTime: 30,
+  // Other filters
+  intolerances: "",
+  minServings: 0,
+  maxServings: 100,
+  sort: "",
+  sortDirection: "asc",
+};
+
+export default {
+  cuisines,
+  dietTypes,
+  mealTypes,
+  intolerances,
+  sortingOptions,
+  defaultFilters,
+};

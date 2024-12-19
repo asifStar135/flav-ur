@@ -20,8 +20,7 @@ export default function Home() {
 
   const fetchRandomRecipes = async () => {
     const response = await Recipe.getRandomRecipe();
-    setRandomRecipes(response!.recipes);
-    console.log(response?.recipes);
+    setRandomRecipes(response?.recipes);
   };
 
   const fetchRecommendedRecipes = async () => {
