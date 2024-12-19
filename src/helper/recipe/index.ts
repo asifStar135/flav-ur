@@ -15,22 +15,78 @@ const client = axios.create({
 
 // Export functions for API calls
 export default {
+  getFilteredRecipes: async (
+    pageNo: number,
+    filters: any,
+    searchQuery: string
+  ) => {
+    try {
+      const { data } = await client.get("/recipes/complexSearch", {
+        params: {
+          query: searchQuery,
+          type: filters?.mealType,
+          cuisine: filters?.cuisine,
+          excludeCuisine: filters?.excludeCuisine,
+          diet: filters?.diet,
+          intolerances: filters?.intolerances,
+          equipments: filters?.equipments,
+          ingredients: filters?.ingredients,
+          excludeIngredients: filters?.excludeIngredients,
+          minCalories: filters?.minCalories,
+          maxCalories: filters?.maxCalories,
+          minProtein: filters?.minProtein,
+          maxProtein: filters?.maxProtein,
+          maxReadyTime: filters?.maxReadyTime,
+          minServings: filters?.minServings,
+          maxServings: filters?.maxServings,
+          sort: filters?.sort,
+          sortDirections: filters?.sortDirections,
+          addRecipeInformation: true,
+          number: 10,
+          offset: pageNo * 10,
+        },
+      });
+
+      return data?.results;
+    } catch (error) {}
+  },
+  getTitleSuggestions: async (query: string) => {
+    try {
+      const { data } = await client.get("recipes/autoComplete", {
+        params: {
+          query,
+          number: 10,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch title suggestions.");
+      return null;
+    }
+  },
   getRecommendedRecipes: async (pageNo: number, preferences: any) => {
-    return Random;
+    try {
+      const { data } = await client.get("/recipes/complexSearch", {
+        params: {
+          cuisine: preferences?.cuisine,
+          diet: preferences?.diet,
+          addRecipeInformation: true,
+          intolerences: `${preferences?.glutenFree ? "Gluten," : ""}${
+            preferences?.dairyFree ? "Dairy," : ""
+          } ${preferences?.allergies}`,
+          number: 10,
+          offset: pageNo * 10,
+        },
+      });
 
-    const { data } = await client.get("/recipes/complexSearch", {
-      params: {
-        cuisine: preferences?.cuisine,
-        diet: preferences?.diet,
-        addRecipeInformation: true,
-        intolerences: `${preferences?.glutenFree ? "Gluten," : ""}${
-          preferences?.dairyFree ? "Dairy," : ""
-        } ${preferences?.allergies}`,
-        page: pageNo,
-      },
-    });
-
-    return data?.results;
+      return data?.results;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch recommended recipes.");
+      return null;
+    }
   },
   getRandomRecipe: async () => {
     try {

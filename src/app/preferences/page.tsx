@@ -99,13 +99,13 @@ const Page = () => {
             </p> */}
               <div className="flex gap-8 my-5 text-gray-400">
                 <div>
-                  <p className="mb-2">Choose your fav cuisince</p>
+                  <p className="mb-2">Choose your fav cuisine</p>
                   <Select
-                    title="choose your favorite cuisince"
+                    title="choose your favorite cuisine"
                     allowClear
                     placeholder="Select cuisine..."
                     className="w-full"
-                    options={Options.cuisinces}
+                    options={Options.cuisines}
                     showSearch
                     value={preference?.cuisine}
                     onChange={(value: string) =>

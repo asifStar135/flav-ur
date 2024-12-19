@@ -41,3 +41,6 @@ body {
 .my-modal .ant-modal-header {
   display: none; /* Hide default header */
 }
+.my-modal .ant-modal-close {
+  display: none;
+}

@@ -21,11 +21,21 @@ export default function RootLayout({
       <html lang="en">
         <body className={`antialiased`}>
           <Toaster position="top-center" />
-          <div className="bg-dark">
+          <div className="bg-dark bg-">
             <Header />
             <ConfigProvider
               theme={{
                 components: {
+                  Slider: {
+                    railBg: "#9ca3af",
+                    trackBg: "#ff9613",
+                    trackHoverBg: "#ff9613",
+                    railHoverBg: "#9ca3af",
+                    handleColor: "#ff9613",
+                    handleActiveColor: "#ff9613",
+                    dotActiveBorderColor: "#ff9613",
+                    dotBorderColor: "#ff9613",
+                  },
                   Select: {
                     hoverBorderColor: "none",
                     activeBorderColor: "#e5e7eb",
@@ -44,7 +54,7 @@ export default function RootLayout({
                   },
                 },
                 token: {
-                  colorBorder: "none",
+                  colorBorder: "#9ca3af",
                   colorTextPlaceholder: "#e5e7eb",
                   colorBgElevated: "#4b5563",
                   colorText: "#e5e7eb",

@@ -123,7 +123,7 @@ export default function Home() {
         </div>
         {showRandomRecipes && (
           <div>
-            <div className="w-full border-t rounded-full my-8 border-gray-400"></div>
+            <div className="w-full border-t my-8 border-gray-400"></div>
 
             <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
               <div className="flex gap-10 w-[110vw]">
@@ -142,11 +142,11 @@ export default function Home() {
 
       {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
       <div className="my-10 p-2 pb-5 rounded-xl border-r border-l border-yel ">
-        <p className="text-3xl font-semibold text-gray-200 mb-7">
+        <p className="text-3xl font-semibold text-gray-200 mb-10">
           <span className="text-yel">Today's </span>
           recipes just for you
         </p>
-        <div className="flex flex-wrap gap-6 px-4 justify-center">
+        <div className="flex flex-wrap gap-8 px- justify-center">
           {recommendedRecipes?.map((recipe, index) => (
             <RecipeCard
               recipeItem={recipe}
@@ -156,7 +156,7 @@ export default function Home() {
           ))}
         </div>
         <div
-          className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 mx-auto p-3"
+          className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark hover:scale-110 transition-all rounded-xl w-40 mx-auto p-2 mt-5"
           onClick={() => fetchRecommendedRecipes()}
         >
           <p>More</p>
