@@ -10,6 +10,7 @@ import { MdHealthAndSafety } from "react-icons/md";
 import { TbBowlSpoonFilled } from "react-icons/tb";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import moment from "moment";
+import Link from "next/link";
 
 const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
   const addRecentItem = async () => {
@@ -100,7 +101,7 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
           className="mt-4 w-3/4 bg-yellow-500 hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
           onClick={() => addRecentItem()}
         >
-          View Recipe
+          <Link href={"/recipe/" + recipeItem?.id}>View Recipe</Link>
         </button>
 
         {isRecent && (

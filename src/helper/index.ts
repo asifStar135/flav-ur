@@ -38,4 +38,18 @@ export const getRandomAvatars = () => {
   return avatars;
 };
 
+export const collapseSummary = (summary: string) => {
+  let ind = 0,
+    cnt = 0;
+
+  while (ind < summary?.length) {
+    if (summary[ind] == "<") cnt++;
+    else if (summary[ind] == ">") cnt--;
+    ind++;
+    if (ind > 350 && cnt == 0 && summary[ind] == " ")
+      return summary.substring(0, ind);
+  }
+  return summary;
+};
+
 export { default as Recipe } from "./recipe";

@@ -98,13 +98,13 @@ const defaultFilters = {
   equipments: "",
   ingredients: "",
   excludeIngredients: "",
-  maxReadyTime: 30,
+  maxReadyTime: 60,
   // Other filters
   intolerances: "",
   minServings: 0,
   maxServings: 100,
-  sort: "",
-  sortDirection: "asc",
+  sort: "popularity",
+  sortDirection: "desc",
 };
 
 export default {

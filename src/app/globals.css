@@ -48,3 +48,14 @@ body {
 .ant-select-arrow {
   color: #d1d5db !important; /* Change clear icon color */
 }
+
+/* MAKING THE SUMMARY TEXT LINKS LOOK LIKE ACTUAL URLS */
+.recipe-summary a {
+  color: #adc4e7; /* Change link color */
+  font-weight: 500;
+}
+
+.ant-rate .ant-rate-star-first,
+.ant-rate .ant-rate-star-second {
+  color: gray;
+}

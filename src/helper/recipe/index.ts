@@ -6,15 +6,29 @@ export { default as Options } from "./options";
 // Create Axios instance
 const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 5000, // Set timeout in milliseconds
+  timeout: 10000, // Set timeout in milliseconds
   params: {
     apiKey: process.env.NEXT_PUBLIC_API_KEY2, // Default parameter
-    lang: "en", // Default language parameter
   },
 });
 
 // Export functions for API calls
 export default {
+  getRecipeInformation: async (recipeId: string) => {
+    try {
+      const { data } = await client.get(`/recipes/${recipeId}/information`, {
+        params: {
+          includeNutrition: true,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      toast.error("Failed to fetch recipe information.");
+      console.error("Error:", error);
+      return null;
+    }
+  },
   getFilteredRecipes: async (
     pageNo: number,
     filters: any,
