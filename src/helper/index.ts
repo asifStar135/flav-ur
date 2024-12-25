@@ -43,10 +43,9 @@ export const collapseSummary = (summary: string) => {
     cnt = 0;
 
   while (ind < summary?.length) {
-    if (summary[ind] == "<") cnt++;
-    else if (summary[ind] == ">") cnt--;
+    if (summary[ind] == "<" || summary[ind] == ">") cnt++;
     ind++;
-    if (ind > 350 && cnt == 0 && summary[ind] == " ")
+    if (ind > 350 && cnt % 4 == 0 && summary[ind] == " ")
       return summary.substring(0, ind);
   }
   return summary;

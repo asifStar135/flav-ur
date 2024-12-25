@@ -1,11 +1,9 @@
 import { getRating, getTime, truncateText } from "@/helper";
-import { store } from "@/store";
 import { Tooltip } from "antd";
 import React from "react";
 import Recipe from "@/helper/recipe";
 import { BiFoodTag } from "react-icons/bi";
 import { FaClock, FaStar } from "react-icons/fa";
-import { GoClock } from "react-icons/go";
 import { MdHealthAndSafety } from "react-icons/md";
 import { TbBowlSpoonFilled } from "react-icons/tb";
 import { FaClockRotateLeft } from "react-icons/fa6";
@@ -13,25 +11,6 @@ import moment from "moment";
 import Link from "next/link";
 
 const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
-  const addRecentItem = async () => {
-    try {
-      const response = await Recipe.addRecentRecipe({
-        id: recipeItem.id,
-        image: recipeItem?.image,
-        title: recipeItem?.title,
-        servings: recipeItem?.servings,
-        readyInMinutes: recipeItem?.readyInMinutes,
-        spoonacularScore: recipeItem?.spoonacularScore,
-        vegetarian: recipeItem?.vegetarian,
-        healthScore: recipeItem?.healthScore,
-      });
-
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <div className={cardWidth + " bg-gray-800 rounded-lg pb-2 self-center"}>
       <img
@@ -97,12 +76,12 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
         </div>
       </div>
       <div className="flex flex-col items-center">
-        <button
-          className="mt-4 w-3/4 bg-yellow-500 hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
-          onClick={() => addRecentItem()}
+        <Link
+          href={"/recipe/" + recipeItem?.id}
+          className="mt-4 w-3/4 bg-yellow-500 text-center hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
         >
-          <Link href={"/recipe/" + recipeItem?.id}>View Recipe</Link>
-        </button>
+          View Recipe
+        </Link>
 
         {isRecent && (
           <div className="flex items-center gap-1 text-gray-400 justify-center mt-2">

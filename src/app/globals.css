@@ -55,7 +55,11 @@ body {
   font-weight: 500;
 }
 
-.ant-rate .ant-rate-star-first,
-.ant-rate .ant-rate-star-second {
-  color: gray;
+/* ADDING CUSTOM RATING STARS COLOURS */
+.ant-rate-star-zero .ant-rate-star-first,
+.ant-rate-star-zero .ant-rate-star-second {
+  color: #374151;
+}
+.ant-rate-star-half .ant-rate-star-second {
+  color: #374151;
 }
