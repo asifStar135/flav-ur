@@ -20,9 +20,9 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
       />
       <div className="px-3 py-2">
         <Tooltip
-          title={recipeItem?.title?.length > 20 ? recipeItem.title : ""}
+          title={recipeItem?.title?.length > 25 ? recipeItem.title : ""}
           color="#2b3348"
-          className="cursor-pointer text-lg text-center font-semibold text-gray-300"
+          className="cursor-pointer text-lg font-semibold text-gray-300"
           overlayStyle={{ maxWidth: "200px" }} // Optional: Set max width for the tooltip
           placement="top" // Optional: Adjust placement
         >
@@ -78,7 +78,7 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
       <div className="flex flex-col items-center">
         <Link
           href={"/recipe/" + recipeItem?.id}
-          className="mt-4 w-3/4 bg-yellow-500 text-center hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
+          className="mt-4 w-3/4 bg-yellow-500 text-center hover:bg-yellow-600 text-dark font-bold py-2 px-4 rounded-lg transition-colors"
         >
           View Recipe
         </Link>

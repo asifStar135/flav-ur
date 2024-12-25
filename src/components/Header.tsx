@@ -13,15 +13,15 @@ const Header = () => {
         </Link>
       </div>
       <div className="flex gap-10 text-yel">
-        <Link href="discover" className="flex items-center gap-3 text-2xl">
+        <Link href="/discover" className="flex items-center gap-3 text-2xl">
           <GrSearchAdvanced />
           Discover
         </Link>
-        <Link href="cookbook" className="flex items-center gap-3 text-2xl">
+        <Link href="/cookbook" className="flex items-center gap-3 text-2xl">
           <MdOutlineMenuBook />
           CookBook
         </Link>
-        <Link href="profile" className="flex items-center gap-3 text-2xl">
+        <Link href="/profile" className="flex items-center gap-3 text-2xl">
           <RiShieldUserFill />
           Profile
         </Link>

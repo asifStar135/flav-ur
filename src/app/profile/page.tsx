@@ -31,7 +31,10 @@ const Profile = () => {
 
   const fetchRecentRecipes = async () => {
     try {
-      const recentItems = await Recipe.fetchRecentRecipe(recentPageNo.current);
+      recentPageNo.current++;
+      const recentItems = await Recipe.fetchRecentRecipe(
+        recentPageNo.current - 1
+      );
       setRecentRecipes((state: Array<any>) => state?.concat(recentItems));
       if (recentItems.length < 5) {
         recentPageNo.current = -1;
@@ -276,7 +279,7 @@ const Profile = () => {
 
       <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
         <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
-          Recent Items
+          Recently Viewed
         </h3>
         <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
           <div
@@ -284,14 +287,18 @@ const Profile = () => {
               recentRecipes.length * 21 + 10
             }vw]`}
           >
-            {recentRecipes.map((recipe: any, index: number) => (
-              <RecipeCard
-                recipeItem={recipe}
-                key={recipe?.id}
-                isRecent={true}
-                cardWidth="w-[20vw]"
-              />
-            ))}
+            {recentRecipes?.length ? (
+              recentRecipes.map((recipe: any, index: number) => (
+                <RecipeCard
+                  recipeItem={recipe}
+                  key={recipe?.id}
+                  isRecent={true}
+                  cardWidth="w-[20vw]"
+                />
+              ))
+            ) : (
+              <div>No recent items found</div>
+            )}
             {recentPageNo.current != -1 && (
               <div
                 className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 p-3"

@@ -140,7 +140,7 @@ export default function Home() {
       </div>
 
       {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
-      <div className="my-10 p-2 pb-5 rounded-xl border-r border-l border-yel ">
+      <div className="my-10 pb-5">
         <p className="text-3xl font-semibold text-gray-200 mb-10">
           <span className="text-yel">Today's </span>
           recipes just for you

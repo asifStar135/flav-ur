@@ -8,7 +8,7 @@ const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000, // Set timeout in milliseconds
   params: {
-    apiKey: process.env.NEXT_PUBLIC_API_KEY2, // Default parameter
+    apiKey: process.env.NEXT_PUBLIC_API_KEY, // Default parameter
   },
 });
 
@@ -27,6 +27,30 @@ export default {
       toast.error("Failed to fetch recipe information.");
       console.error("Error:", error);
       return null;
+    }
+  },
+  addToCookBook: async (recipe: any, group: string, notes: string) => {
+    const { data } = await axios.post("/api/cookbook/add", {
+      ...recipe,
+      group,
+      notes,
+    });
+
+    return data?.success;
+  },
+  getSimilarRecipes: async (recipeId: string) => {
+    try {
+      const { data } = await client.get(`/recipes/${recipeId}/similar`, {
+        params: {
+          number: 10,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      toast.error("Failed to fetch similar recipes.");
+      console.error("Error:", error);
+      return [];
     }
   },
   getFilteredRecipes: async (
@@ -140,12 +164,5 @@ export default {
       console.error(error);
       return null;
     }
-  },
-  getSampleRecipe: async () => {
-    const { data } = await axios.get("/api/recipes/sample");
-    return Sample;
-  },
-  getRecentRecipes: async () => {
-    return Sample;
   },
 };

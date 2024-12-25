@@ -1,19 +1,31 @@
 "use client";
 
-import { collapseSummary, getRating, Recipe, truncateText } from "@/helper";
-import { demoRecipe } from "@/helper/temp";
+import {
+  collapseSummary,
+  getRating,
+  getTime,
+  Recipe,
+  truncateText,
+} from "@/helper";
 import { Rate, Tag, Tooltip } from "antd";
-import { use, useEffect, useState } from "react";
-import { BiFoodTag, BiSolidLike } from "react-icons/bi";
+import Link from "next/link";
+import { use, useEffect, useRef, useState } from "react";
+import {
+  BiFoodTag,
+  BiSolidLike,
+  BiSolidMessage,
+  BiSolidMessageSquareEdit,
+} from "react-icons/bi";
 import { BsClock } from "react-icons/bs";
-import { FaGrinHearts } from "react-icons/fa";
+import { FaClock, FaGrinHearts } from "react-icons/fa";
 import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { IoFastFood } from "react-icons/io5";
 import { LuMilkOff } from "react-icons/lu";
-import { MdHealthAndSafety } from "react-icons/md";
+import { MdBookmarkAdd, MdHealthAndSafety } from "react-icons/md";
 import { PiBowlFood } from "react-icons/pi";
 import { TbBowlSpoonFilled, TbCircleDotFilled } from "react-icons/tb";
+const imageBaseUrl = "https://img.spoonacular.com/recipes/";
 
 type ParamsType = {
   id: string;
@@ -25,6 +37,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
   const [recipe, setRecipe] = useState<any>({});
   const [expandSummary, setExpandSummary] = useState(false);
   const [recipeTags, setRecipeTags] = useState<any[]>([]);
+  const [similarRecipes, setSimilarRecipes] = useState<any[]>([]);
 
   const addRecentItem = async () => {
     try {
@@ -46,10 +59,14 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
   };
 
   useEffect(() => {
-    if (recipeId)
+    if (recipeId) {
       Recipe?.getRecipeInformation(recipeId).then((recipeInformation) => {
         setRecipe(recipeInformation);
       });
+      Recipe?.getSimilarRecipes(recipeId).then((recipes) => {
+        setSimilarRecipes(recipes);
+      });
+    }
   }, [recipeId]);
 
   useEffect(() => {
@@ -112,7 +129,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
         <div className="bg-gray-800 self-center rounded-xl shadow shadow-gray-800 w-1/3">
           <img
             src={recipe?.image}
-            className="rounded-lg self-start"
+            className="rounded-t-lg self-start"
             alt="Recipe image"
           />
           <div className="p-3 px-5">
@@ -171,9 +188,11 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 {recipe?.cuisines?.length > 3 && (
                   <Tooltip
                     color="#2b3348"
-                    overlayClassName="w-92"
+                    overlayStyle={{
+                      maxWidth: 500,
+                    }}
                     overlay={
-                      <div className="flex flex-wrap gap-2 justify-around">
+                      <div className="flex flex-wrap gap-2 justify-around p-3">
                         {recipe?.cuisines.slice(3).map((cuisine: any) => (
                           <Tag
                             key={cuisine}
@@ -210,9 +229,11 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 {recipe.dishTypes?.length > 3 && (
                   <Tooltip
                     color="#2b3348"
-                    overlayClassName="w-92"
+                    overlayStyle={{
+                      maxWidth: 500,
+                    }}
                     overlay={
-                      <div className="flex flex-wrap gap-2 justify-around">
+                      <div className="flex flex-wrap gap-2 justify-around p-3">
                         {recipe.dishTypes.slice(3).map((dish: any) => (
                           <Tag
                             key={dish}
@@ -270,6 +291,17 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
               </span>
             </div>
           </div>
+          <div className="flex justify-end gap-5 mt-4">
+            <button className="flex gap-1 items-center px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all">
+              <MdBookmarkAdd className="text-xl" />
+              <p>Cookbook</p>
+            </button>
+            <button className="flex gap-1 items-center px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all">
+              <BiSolidMessageSquareEdit className="text-xl" />
+              <p>Notes</p>
+            </button>
+          </div>
+
           <div className="bg-gray-800 px-5 py-3 rounded-lg mt-5">
             <p className="font-semibold text-2xl text-center mb-5">
               <b className="text-yel">Ingredients</b> You Need
@@ -308,25 +340,22 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
       </div>
 
       <div className="flex w-5/6 mx-auto justify-between mb-10">
-        <div className="py-3 px-8 rounded-lg bg-gray-800 w-3/5">
+        <div className="py-3 px-8 rounded-lg bg-gray-800 w-3/5 self-start">
           <h1 className="text-2xl font-semibold text-center mb-5">
             <b className="text-yel">Steps </b> You've to Follow
           </h1>
           <div>
-            {recipe?.analyzedInstructions?.map(
-              (instruction: any, index: number) =>
-                instruction?.steps?.map((step: any, index: number) => (
-                  <div key={index} className="my-2">
-                    <span className="font-bold text-gray-200">
-                      {index + 1}.{" "}
-                    </span>
-                    <span className="text-gray-300">{step.step}</span>
-                  </div>
-                ))
+            {recipe?.analyzedInstructions?.map((instruction: any) =>
+              instruction?.steps?.map((step: any, index: number) => (
+                <div key={index} className="my-2">
+                  <span className="font-bold text-gray-200">{index + 1}. </span>
+                  <span className="text-gray-300">{step.step}</span>
+                </div>
+              ))
             )}
           </div>
         </div>
-        <div className="py-3 px-5 rounded-lg bg-gray-800 w-[38%]">
+        <div className="py-3 px-5 rounded-lg bg-gray-800 w-[38%] self-start">
           <h1 className="text-2xl font-semibold text-center mb-3">
             <b className="text-yel">Nutritional </b> information
           </h1>
@@ -351,7 +380,9 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             {recipe?.diets?.length > 3 && (
               <Tooltip
                 color="#2b3348"
-                overlayClassName="w-92"
+                overlayStyle={{
+                  maxWidth: 500,
+                }}
                 overlay={
                   <div className="flex flex-wrap gap-2 justify-around">
                     {recipe?.diets.slice(3).map((diet: any) => (
@@ -387,14 +418,14 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </b>
           </p>
 
-          <div className="mt-5 border border-gray-500 py-2 rounded-lg">
+          <div className="mt-5 border border-gray-500 pt-2 rounded-lg">
             <p className="text-gray-300 text-lg text-center">All values</p>
             <div className="grid grid-cols-2 max-h-44 overflow-auto scrollbar-hidden">
               {recipe?.nutrition?.nutrients?.map((nutr: any, index: number) => (
                 <p
                   className={
                     "text-gray-400 border-gray-500 p-1 px-2 " +
-                    (index < recipe?.nutrition?.nutrients?.length - 1 &&
+                    (index < recipe?.nutrition?.nutrients?.length - 2 &&
                       "border-b")
                   }
                   key={index}
@@ -406,6 +437,58 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 </p>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
+        <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
+          Check Similar Recipes
+        </h3>
+        <div className="overflow-x-scroll scrollbar-hidden w-full px-5">
+          <div
+            className={`flex justify-around gap-5`}
+            style={{
+              width: similarRecipes?.length * 300 + "px",
+            }}
+          >
+            {similarRecipes.map((item: any, index: number) => (
+              <div className="bg-gray-800 rounded-lg" key={index}>
+                <img
+                  src={imageBaseUrl + item?.id + "-240x150." + item?.imageType}
+                  alt=""
+                  className="rounded-t-lg w-[280px]"
+                />
+                <Tooltip
+                  title={item?.title?.length > 25 ? item.title : ""}
+                  color="#2b3348"
+                  className="cursor-pointer text-lg text-gray-300 font-semibold"
+                  overlayStyle={{ maxWidth: "300px" }} // Optional: Set max width for the tooltip
+                  placement="top" // Optional: Adjust placement
+                >
+                  <p className="m-3 ">{truncateText(item?.title, 25)}</p>
+                </Tooltip>
+
+                <div className="flex justify-between px-5 text-lg">
+                  <div className="flex items-center gap-2">
+                    <FaClock className="text-blue-600" />
+                    <span>{getTime(item?.readyInMinutes)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TbBowlSpoonFilled className="text-green-600" />
+                    <span>{item?.servings} servings</span>
+                  </div>
+                </div>
+                <div className="my-5 text-center">
+                  <Link
+                    href={"/recipe/" + item?.id}
+                    className="bg-yellow-500 text-center hover:bg-yellow-600 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
+                  >
+                    View Recipe
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

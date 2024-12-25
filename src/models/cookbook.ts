@@ -10,6 +10,9 @@ const cookBookModel = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    group: {
+      type: String,
+    },
     image: {
       type: String,
       required: true,
