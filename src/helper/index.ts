@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import options from "./options";
 
 export const truncateText = (text: string, length: number): string => {
   if (text?.length <= length) return text;
@@ -51,4 +51,4 @@ export const collapseSummary = (summary: string) => {
   return summary;
 };
 
-export { default as Recipe } from "./recipe";
+export const Options = { ...options };

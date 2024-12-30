@@ -24,7 +24,7 @@ export const POST = async (req: NextRequest) => {
       healthScore,
       vegetarian,
       notes,
-      group,
+      listName,
     } = await req.json();
 
     // Check if recipe already exists in the database
@@ -38,6 +38,7 @@ export const POST = async (req: NextRequest) => {
         status: 400,
       });
     }
+
     // Create new recipe in the database
     await Cookbook.create({
       userId: user.id,
@@ -50,7 +51,7 @@ export const POST = async (req: NextRequest) => {
       healthScore,
       vegetarian,
       notes,
-      group,
+      listName,
     });
 
     return NextResponse.json({

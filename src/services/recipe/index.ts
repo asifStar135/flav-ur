@@ -1,14 +1,12 @@
 import axios from "axios";
-import { Random, Sample } from "../temp";
 import toast from "react-hot-toast";
-export { default as Options } from "./options";
 
 // Create Axios instance
 const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000, // Set timeout in milliseconds
   params: {
-    apiKey: process.env.NEXT_PUBLIC_API_KEY, // Default parameter
+    apiKey: process.env.NEXT_PUBLIC_API_KEY2, // Default parameter
   },
 });
 
@@ -22,21 +20,21 @@ export default {
         },
       });
 
-      return data;
+      return {
+        ...data,
+        diets: data?.diets?.sort((a: string, b: string) => a.length - b.length),
+        cuisines: data?.cuisines?.sort(
+          (a: string, b: string) => a.length - b.length
+        ),
+        dishTypes: data?.dishTypes?.sort(
+          (a: string, b: string) => a.length - b.length
+        ),
+      };
     } catch (error) {
       toast.error("Failed to fetch recipe information.");
       console.error("Error:", error);
       return null;
     }
-  },
-  addToCookBook: async (recipe: any, group: string, notes: string) => {
-    const { data } = await axios.post("/api/cookbook/add", {
-      ...recipe,
-      group,
-      notes,
-    });
-
-    return data?.success;
   },
   getSimilarRecipes: async (recipeId: string) => {
     try {
@@ -135,31 +133,6 @@ export default {
         },
       });
       return data;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  },
-  addRecentRecipe: async (recipeItem: any) => {
-    try {
-      const response = await axios.post("/api/recipe/recent", recipeItem);
-      if (response.data.success) {
-        return true;
-      } else toast.error(response.data.error);
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  },
-  fetchRecentRecipe: async (page: number) => {
-    try {
-      const { data } = await axios.get(`/api/recipe/recent?page=${page}`);
-      if (data.success) {
-        if (data?.recentItems?.length == 0) {
-          toast.error("No more recent recipes found.");
-        }
-        return data?.recentItems;
-      } else toast.error(data.error);
     } catch (error) {
       console.error(error);
       return null;

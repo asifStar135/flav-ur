@@ -6,11 +6,12 @@ const cookBookModel = new mongoose.Schema(
       type: String,
       required: true,
     },
-    recipeId: {
+    //  recipe Id for spoonacular
+    id: {
       type: Number,
       required: true,
     },
-    group: {
+    listName: {
       type: String,
     },
     image: {

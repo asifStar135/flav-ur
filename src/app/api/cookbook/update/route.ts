@@ -9,31 +9,36 @@ export const PUT = async (req: NextRequest) => {
   try {
     // check user first
     const user = await currentUser();
-    if (!user?.id) {
-      return NextResponse.json({
-        error: "User not authenticated",
-        status: 401,
-      });
-    }
 
-    const { id, notes } = await req.json();
-    const updatedRecipe = await Cookbook.updateOne(
-      { userId: user.id, id },
-      { notes }
+    const { recipeId, notes, listName } = await req.json();
+
+    if (listName?.length == 0) {
+      const update = await Cookbook.deleteOne({
+        id: recipeId,
+        userId: user?.id,
+      });
+      if (update?.deletedCount)
+        return NextResponse.json({
+          status: 200,
+          message: "Recipe deleted successfully",
+          success: true,
+        });
+      else
+        return NextResponse.json({
+          status: 400,
+          error: "Failed to delete item",
+        });
+    }
+    const update = await Cookbook.updateOne(
+      { id: recipeId, userId: user?.id },
+      { $set: { notes, listName } }
     );
 
-    if (updatedRecipe.upsertedCount) {
-      return NextResponse.json({
-        status: 200,
-        message: "Recipe notes updated successfully",
-        success: true,
-      });
-    } else {
-      return NextResponse.json({
-        status: 404,
-        message: "Recipe not found",
-      });
-    }
+    return NextResponse.json({
+      status: 200,
+      message: "Recipe updated successfully",
+      success: true,
+    });
   } catch (error) {
     return NextResponse.json({
       status: 500,

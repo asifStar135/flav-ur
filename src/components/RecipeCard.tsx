@@ -1,7 +1,7 @@
 import { getRating, getTime, truncateText } from "@/helper";
 import { Tooltip } from "antd";
 import React from "react";
-import Recipe from "@/helper/recipe";
+import { Recipe } from "@/services";
 import { BiFoodTag } from "react-icons/bi";
 import { FaClock, FaStar } from "react-icons/fa";
 import { MdHealthAndSafety } from "react-icons/md";

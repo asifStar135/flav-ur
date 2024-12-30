@@ -3,10 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { Input, Modal, Popover, Select, Switch } from "antd";
-import { Options } from "@/helper/recipe";
+import { Options } from "@/helper";
 import { IoMail } from "react-icons/io5";
 import { FaAt } from "react-icons/fa6";
-import { getRandomAvatars, Recipe } from "@/helper";
+import { getRandomAvatars } from "@/helper";
+import { Recent } from "@/services";
 import RecipeCard from "@/components/RecipeCard";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
@@ -32,7 +33,7 @@ const Profile = () => {
   const fetchRecentRecipes = async () => {
     try {
       recentPageNo.current++;
-      const recentItems = await Recipe.fetchRecentRecipe(
+      const recentItems = await Recent.fetchRecentRecipe(
         recentPageNo.current - 1
       );
       setRecentRecipes((state: Array<any>) => state?.concat(recentItems));

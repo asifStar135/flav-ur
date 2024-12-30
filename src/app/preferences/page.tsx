@@ -1,7 +1,7 @@
 "use client";
 
 import { getRandomAvatars } from "@/helper";
-import { Options } from "@/helper/recipe";
+import { Options } from "@/helper";
 import { useUser } from "@clerk/nextjs";
 import { Select, Switch } from "antd";
 import { useRouter } from "next/navigation";

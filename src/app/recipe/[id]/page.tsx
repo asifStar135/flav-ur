@@ -1,15 +1,11 @@
 "use client";
 
-import {
-  collapseSummary,
-  getRating,
-  getTime,
-  Recipe,
-  truncateText,
-} from "@/helper";
-import { Rate, Tag, Tooltip } from "antd";
+import { collapseSummary, getRating, getTime, truncateText } from "@/helper";
+import { Cookbook, Recent, Recipe } from "@/services";
+import { Divider, Input, Modal, Rate, Select, Space, Tag, Tooltip } from "antd";
 import Link from "next/link";
 import { use, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import {
   BiFoodTag,
   BiSolidLike,
@@ -22,7 +18,11 @@ import { FaMagnifyingGlassLocation } from "react-icons/fa6";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { IoFastFood } from "react-icons/io5";
 import { LuMilkOff } from "react-icons/lu";
-import { MdBookmarkAdd, MdHealthAndSafety } from "react-icons/md";
+import {
+  MdBookmarkAdd,
+  MdBookmarkAdded,
+  MdHealthAndSafety,
+} from "react-icons/md";
 import { PiBowlFood } from "react-icons/pi";
 import { TbBowlSpoonFilled, TbCircleDotFilled } from "react-icons/tb";
 const imageBaseUrl = "https://img.spoonacular.com/recipes/";
@@ -38,10 +38,32 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
   const [expandSummary, setExpandSummary] = useState(false);
   const [recipeTags, setRecipeTags] = useState<any[]>([]);
   const [similarRecipes, setSimilarRecipes] = useState<any[]>([]);
+  const [showCookbookModal, setShowCookbookModal] = useState<string>("");
+  const [listName, setListName] = useState("");
+  const [newListName, setNewListName] = useState("");
+  const [cookBookLists, setCookBookLists] = useState<any[]>([]);
+  const [cookbookNotes, setCookbookNotes] = useState<string>("");
+  const [recipeCookbookDetails, setRecipeCookbookDetails] = useState<any>({
+    notes: "",
+    listName: "",
+  });
+  const isSaved = useRef(false);
+
+  const addNewList = () => {
+    if (!newListName) {
+      toast.error("Please enter a list name !");
+      return;
+    }
+    setCookBookLists((prev) => [
+      ...prev,
+      { label: newListName, value: newListName },
+    ]);
+    setNewListName("");
+  };
 
   const addRecentItem = async () => {
     try {
-      const response = await Recipe.addRecentRecipe({
+      const response = await Recent.addRecentRecipe({
         id: recipe.id,
         image: recipe?.image,
         title: recipe?.title,
@@ -58,6 +80,97 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
     }
   };
 
+  const addToCookbook = async () => {
+    if (!listName) {
+      toast.error("Please select a list to add the recipe!");
+      return;
+    }
+    if (showCookbookModal == "notes" && !cookbookNotes) {
+      toast.error("Please enter some notes!");
+      return;
+    }
+    const result = await Cookbook.addToCookBook(
+      {
+        id: recipeId,
+        image: recipe?.image,
+        title: recipe?.title,
+        servings: recipe?.servings,
+        readyInMinutes: recipe?.readyInMinutes,
+        spoonacularScore: recipe?.spoonacularScore,
+        healthScore: recipe?.healthScore,
+        vegetarian: recipe?.vegetarian,
+        notes: recipe?.notes,
+      },
+      listName,
+      cookbookNotes
+    );
+    if (result?.success) {
+      toast.success("Added recipe to cookbook.");
+      isSaved.current = true;
+      setRecipeCookbookDetails({
+        notes: cookbookNotes,
+        listName: listName,
+      });
+    }
+    closeCookbookModal();
+  };
+
+  const closeCookbookModal = () => {
+    setShowCookbookModal("");
+    setCookbookNotes("");
+    setNewListName("");
+    setListName(recipeCookbookDetails?.listName);
+    setCookbookNotes(recipeCookbookDetails?.notes);
+  };
+
+  const fetchCookbookDetails = async () => {
+    const result = await Cookbook?.getCookbookDetails(recipeId);
+    if (result?.details) {
+      setCookbookNotes(result?.details?.notes);
+      setListName(result?.details?.listName);
+      setRecipeCookbookDetails({
+        notes: result?.details?.notes,
+        listName: result?.details?.listName,
+      });
+      isSaved.current = true;
+    }
+    setCookBookLists(() =>
+      result?.listNames?.map((item: string) => {
+        return { label: item, value: item };
+      })
+    );
+  };
+
+  const removeFromCookbook = async () => {
+    const response = await Cookbook.updateInCookbook(
+      recipeId,
+      cookbookNotes,
+      ""
+    );
+    if (response.success) {
+      toast.success("Removed recipe from cookbook.");
+      isSaved.current = false;
+      setListName("");
+      setShowCookbookModal("");
+    }
+  };
+
+  const updateCookbook = async () => {
+    const response = await Cookbook.updateInCookbook(
+      recipeId,
+      cookbookNotes,
+      listName
+    );
+    if (response.success) {
+      toast.success("Updated recipe details in cookbook.");
+      setRecipeCookbookDetails({
+        notes: cookbookNotes,
+        listName: listName,
+      });
+      setShowCookbookModal("");
+    }
+  };
+
   useEffect(() => {
     if (recipeId) {
       Recipe?.getRecipeInformation(recipeId).then((recipeInformation) => {
@@ -66,6 +179,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
       Recipe?.getSimilarRecipes(recipeId).then((recipes) => {
         setSimilarRecipes(recipes);
       });
+      fetchCookbookDetails();
     }
   }, [recipeId]);
 
@@ -292,11 +406,26 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </div>
           </div>
           <div className="flex justify-end gap-5 mt-4">
-            <button className="flex gap-1 items-center px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all">
-              <MdBookmarkAdd className="text-xl" />
-              <p>Cookbook</p>
+            <button
+              className="px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all"
+              onClick={() => setShowCookbookModal("add")}
+            >
+              {isSaved.current ? (
+                <div className="flex gap-1 items-center">
+                  <MdBookmarkAdded className="text-xl" />
+                  <p>{recipeCookbookDetails?.listName}</p>
+                </div>
+              ) : (
+                <div className="flex gap-1 items-center">
+                  <MdBookmarkAdd className="text-xl" />
+                  <p>Cookbook</p>
+                </div>
+              )}
             </button>
-            <button className="flex gap-1 items-center px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all">
+            <button
+              className="flex gap-1 items-center px-2 py-1 border border-yel text-yel hover:text-gray-800 text-lg rounded-md hover:bg-yel hover:scale-110 transition-all"
+              onClick={() => setShowCookbookModal("notes")}
+            >
               <BiSolidMessageSquareEdit className="text-xl" />
               <p>Notes</p>
             </button>
@@ -425,8 +554,11 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 <p
                   className={
                     "text-gray-400 border-gray-500 p-1 px-2 " +
-                    (index < recipe?.nutrition?.nutrients?.length - 2 &&
-                      "border-b")
+                    (index <
+                    recipe?.nutrition?.nutrients?.length -
+                      (recipe?.nutrition?.nutrients?.length % 2 == 0 ? 2 : 1)
+                      ? "border-b"
+                      : "")
                   }
                   key={index}
                 >
@@ -492,6 +624,114 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={showCookbookModal.length > 0}
+        footer={null}
+        onCancel={() => closeCookbookModal()}
+        className="my-modal"
+        width={isSaved.current ? "50%" : "40%"}
+      >
+        <div className="">
+          {isSaved.current == false ? (
+            <h1 className="text-xl text-center">
+              Add Recipe <span className="text-gray-400">#{recipe?.id}</span> to{" "}
+              <b className="text-yel"> CookBook</b>{" "}
+              {showCookbookModal == "notes" && (
+                <p>
+                  with custom <b className="text-yel">Notes</b>
+                </p>
+              )}
+            </h1>
+          ) : (
+            <h1 className="text-xl text-center">
+              Update cookbook details of Recipe{" "}
+              <span className="text-gray-400">#{recipe?.id}</span>{" "}
+            </h1>
+          )}
+
+          <div className="w-2/3 mx-auto my-5">
+            <div className={isSaved.current ? "flex gap-3 items-center" : ""}>
+              {isSaved.current == false && (
+                <h1 className="text-xl mb-2 text-gray-300">
+                  Select the list you want to add this recipe
+                </h1>
+              )}
+              {(isSaved.current == false || showCookbookModal == "add") && (
+                <Select
+                  options={cookBookLists}
+                  className="w-80"
+                  placeholder="Select the list to add..."
+                  value={listName || undefined}
+                  onChange={(value) => setListName(value)}
+                  dropdownRender={(menu) => (
+                    <>
+                      {menu}
+                      <Divider className="border-gray-400 my-1 mt-3" />
+                      <Space className="p-2 flex justify-between items-center">
+                        <Input
+                          placeholder="New list name..."
+                          value={newListName}
+                          onChange={(e) => setNewListName(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
+                          className="w-48 text-lg"
+                        />
+                        <button
+                          className="border border-gray-400 bg-gray-700 rounded-lg px-3 py-1 hover:bg-gray-500"
+                          onClick={() => addNewList()}
+                        >
+                          Add +
+                        </button>
+                      </Space>
+                    </>
+                  )}
+                />
+              )}
+              {isSaved.current && showCookbookModal == "add" && (
+                <button
+                  className="rounded-lg p-1 px-6 text-lg font-semibold border border-gray-600 hover:bg-gray-600 transition-all"
+                  onClick={() => removeFromCookbook()}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+
+            {showCookbookModal == "notes" && (
+              <div>
+                <h1 className="text-xl my-2 text-gray-300">
+                  Add your custom notes to this recipe
+                </h1>
+                <Input.TextArea
+                  value={cookbookNotes}
+                  onChange={(e) => {
+                    setCookbookNotes(e.target.value);
+                  }}
+                  placeholder="Enter your notes..."
+                  className="text-lg"
+                  rows={3}
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex gap-5 my-5 justify-center font-semibold text-lg">
+            <button
+              className="border border-yel hover:bg-yel hover:text-dark transition-all rounded-lg p-1 px-6"
+              onClick={() =>
+                isSaved.current ? updateCookbook() : addToCookbook()
+              }
+            >
+              Save Item
+            </button>
+            <button
+              className="rounded-lg p-1 px-6 border border-gray-600 hover:bg-gray-600 transition-all"
+              onClick={() => closeCookbookModal()}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

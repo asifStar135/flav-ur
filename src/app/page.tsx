@@ -1,7 +1,7 @@
 "use client";
 
 import RecipeCard from "@/components/RecipeCard";
-import { Recipe } from "@/helper";
+import { Recipe } from "@/services";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";

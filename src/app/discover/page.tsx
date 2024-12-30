@@ -1,15 +1,14 @@
 "use client";
 import RecipeCard from "@/components/RecipeCard";
-import { Recipe, truncateText } from "@/helper";
-import { Options } from "@/helper/recipe";
+import { truncateText } from "@/helper";
+import { Recipe } from "@/services";
+import { Options } from "@/helper";
 import { Input, Modal, Radio, Select, Slider } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { BsFillFilterCircleFill } from "react-icons/bs";
 import { CiSquarePlus } from "react-icons/ci";
-import { GiFastBackwardButton, GiFastForwardButton } from "react-icons/gi";
-import { GrKeyboard, GrSearchAdvanced } from "react-icons/gr";
-import { IoSearchCircleOutline } from "react-icons/io5";
+import { GrSearchAdvanced } from "react-icons/gr";
 import { LuSettings2 } from "react-icons/lu";
+import Link from "next/link";
 const imageBaseUrl = "https://img.spoonacular.com/recipes/";
 
 const Discover = () => {
@@ -224,8 +223,10 @@ const Discover = () => {
                       alt="Recipe search"
                       className="w-20 rounded-full border border-yel"
                     />
-                    <h1 className="text-2xl text-gray-300">
-                      {truncateText(item?.title, 40)}
+                    <h1 className="text-2xl text-gray-300 hover:text-yel">
+                      <Link href={"/recipe/" + item?.id}>
+                        {truncateText(item?.title, 40)}
+                      </Link>
                     </h1>
                   </div>
                 ))}
