@@ -12,6 +12,20 @@ const CookBook = () => {
     listNames: 0,
     notes: 0,
   });
+  const [recipeList, setRecipeList] = useState([]);
+
+  // console.log("cookbook->", cookbookStats)
+  console.log("recipeList->", recipeList)
+
+  const getRecipesOfList = (list)=>{
+    console.log("fecth list->", list)
+    Cookbook.getRecipesOfListCookbook(list).then((res) => {
+      if (res.success) {
+        console.log(res);
+        setRecipeList(res.result);
+      }
+    });
+  }
 
   const init = () => {
     Cookbook.getCookbookStats().then((res) => {
@@ -57,7 +71,7 @@ const CookBook = () => {
                 </div>
                 <div className="text-center">
                   <div className="w-18 h-18 p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
-                    {cookbookStats?.listNames}
+                    {cookbookStats?.listNames?.length ?? "0"}
                   </div>
                   <p className="text-lg text-gray-300 mt-3">Lists Created</p>
                 </div>
@@ -76,6 +90,28 @@ const CookBook = () => {
             className="w-52"
           />
         </div>
+
+        {/* cookbook lists and recipes */}
+        <div className="bg-gray-800 px-10 py-4 rounded-full mt-10">
+          <div className="text-white text-center">
+            <h2 className="text-2xl text-gray-300 font-semibold mb-5">
+              Your
+              <b className="text-yel"> Lists </b>
+            </h2>
+          </div>
+
+          <div className="flex justify-around font-semibold text-2xl">
+            {
+              cookbookStats?.listNames?.length && 
+              cookbookStats?.listNames?.map((list, index)=>(
+              <button key={index} onClick={()=>getRecipesOfList(list)} className="w-[10rem] p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
+                {list}
+              </button>
+              ))
+            }
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -64,4 +64,18 @@ export default {
       console.log(error);
     }
   },
+  getRecipesOfListCookbook: async (listName: string) => {
+    try {
+      console.log("called getrecipeslistcookbook")
+      const { data } = await axios.get("/api/cookbook/fetch", {
+        params: {
+          listName,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };

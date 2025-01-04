@@ -18,7 +18,7 @@ export const GET = async (req: NextRequest) => {
       result: {
         total: cookBooklist.length,
         notes: notesCount,
-        listNames: listNames.size,
+        listNames: Array.from(listNames)
       },
       success: true,
       status: 200,
