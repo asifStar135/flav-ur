@@ -1,8 +1,10 @@
 "use client";
 
+import RecipeCard from "@/components/RecipeCard";
 import { Cookbook } from "@/services";
 import { useUser } from "@clerk/nextjs";
 import React, { useEffect, useState } from "react";
+import { CiSquarePlus } from "react-icons/ci";
 
 const CookBook = () => {
   const { user } = useUser();
@@ -13,15 +15,11 @@ const CookBook = () => {
     notes: 0,
   });
   const [recipeList, setRecipeList] = useState([]);
-
-  // console.log("cookbook->", cookbookStats)
-  console.log("recipeList->", recipeList)
+  const [activeList, setActiveList] = useState(null);
 
   const getRecipesOfList = (list)=>{
-    console.log("fecth list->", list)
     Cookbook.getRecipesOfListCookbook(list).then((res) => {
       if (res.success) {
-        console.log(res);
         setRecipeList(res.result);
       }
     });
@@ -104,15 +102,56 @@ const CookBook = () => {
             {
               cookbookStats?.listNames?.length && 
               cookbookStats?.listNames?.map((list, index)=>(
-              <button key={index} onClick={()=>getRecipesOfList(list)} className="w-[10rem] p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
+              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className="w-[10rem] p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
                 {list}
               </button>
               ))
             }
           </div>
         </div>
-
       </div>
+
+      {
+        activeList != null && 
+        <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
+          <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
+            Recipes from 
+            <b className="text-yel"> {activeList} </b>
+          </h3>
+          <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
+            <div
+              className={`flex gap-8 px-4 w-[${
+                recipeList.length * 21 + 10
+              }vw]`}
+            >
+              {recipeList?.length ? (
+                recipeList.map((recipe, index) => (
+                  <RecipeCard
+                    recipeItem={recipe}
+                    key={recipe?.id}
+                    isRecent={true}
+                    cardWidth="w-[28vw]"
+                  />
+                ))
+              ) : (
+                <div>No recent items found</div>
+              )}
+              {/* {recentPageNo.current != -1 && ( */}
+                <div
+                  className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 p-3"
+                  // onClick={() => fetchrecipeList()}
+                >
+                  <p>More</p>
+                  <CiSquarePlus className="text-4xl" />
+                </div>
+              {/* )} */}
+            </div>
+          </div>
+        </div>
+      }
+
+
+    
     </div>
   );
 };
