@@ -99,14 +99,14 @@ const CookBook = () => {
           </div>
 
           <div className="flex justify-around font-semibold text-2xl">
-            <button onClick={()=>{getRecipesOfList("all"); setActiveList("all")}} className="w-40 p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
+            <button onClick={()=>{getRecipesOfList("all"); setActiveList("all")}} className={`w-40 p-2 rounded-full bg-yellow-100 hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == "all" && 'active:bg-yel'}`}>
                   All
             </button>
 
             {
               cookbookStats?.listNames?.length && 
               cookbookStats?.listNames?.map((list, index)=>(
-              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className={`w-40 p-2 rounded-full hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == list && 'active:bg-yel'}`}>
+              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className={`w-40 p-2 rounded-full bg-yellow-100 hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == list && 'active:bg-yel'}`}>
                 {list}
               </button>
               ))
@@ -124,7 +124,7 @@ const CookBook = () => {
           </h3>
           <div className="w-full flex gap-5">
             <div
-              className={`flex gap-8 px-4 w-[${
+              className={`flex flex-wrap gap-8 px-4 w-[${
                 recipeList.length * 21 + 10
               }vw]`}
             >
@@ -134,7 +134,7 @@ const CookBook = () => {
                     recipeItem={recipe}
                     key={recipe?.id}
                     isRecent={true}
-                    cardWidth="w-[28vw]"
+                    cardWidth="w-[19vw]"
                   />
                 ))
               ) : (
