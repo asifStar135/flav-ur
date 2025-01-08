@@ -90,7 +90,7 @@ const CookBook = () => {
         </div>
 
         {/* cookbook lists and recipes */}
-        <div className="bg-gray-800 px-10 py-4 rounded-full mt-10">
+        <div className="bg-gray-800 px-10 py-4 rounded-xl mt-10">
           <div className="text-white text-center">
             <h2 className="text-2xl text-gray-300 font-semibold mb-5">
               Your
@@ -99,10 +99,14 @@ const CookBook = () => {
           </div>
 
           <div className="flex justify-around font-semibold text-2xl">
+            <button onClick={()=>{getRecipesOfList("all"); setActiveList("all")}} className="w-40 p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
+                  All
+            </button>
+
             {
               cookbookStats?.listNames?.length && 
               cookbookStats?.listNames?.map((list, index)=>(
-              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className="w-[10rem] p-2 rounded-full hover:rotate-6 shadow shadow-yel text-dark bg-yel transition-all">
+              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className={`w-40 p-2 rounded-full hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == list && 'active:bg-yel'}`}>
                 {list}
               </button>
               ))
@@ -113,12 +117,12 @@ const CookBook = () => {
 
       {
         activeList != null && 
-        <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
-          <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
+        <div className="w-4/5 my-10 mx-auto py-8">
+          <h3 className="text-2xl text-yel font-semibold mb-6 text-center">
             Recipes from 
             <b className="text-yel"> {activeList} </b>
           </h3>
-          <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
+          <div className="w-full flex gap-5">
             <div
               className={`flex gap-8 px-4 w-[${
                 recipeList.length * 21 + 10
