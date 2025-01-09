@@ -15,14 +15,17 @@ const CookBook = () => {
     notes: 0,
   });
   const [recipeList, setRecipeList] = useState([]);
-  const [activeList, setActiveList] = useState(null);
+  const [activeList, setActiveList] = useState("all");
+  const [recipeLoading, setRecipeLoading] = useState(false);
 
-  const getRecipesOfList = (list)=>{
-    Cookbook.getRecipesOfListCookbook(list).then((res) => {
+  const getRecipesOfList = ()=>{
+    setRecipeLoading(true);
+    Cookbook.getRecipesOfListCookbook(activeList).then((res) => {
       if (res.success) {
         setRecipeList(res.result);
+        setRecipeLoading(false);
       }
-    });
+    }).catch(()=>setRecipeLoading(false));
   }
 
   const init = () => {
@@ -36,6 +39,10 @@ const CookBook = () => {
   useEffect(() => {
     init();
   }, []);
+
+  useEffect(()=>{
+    getRecipesOfList();
+  }, [activeList])
 
   return (
     <div>
@@ -90,7 +97,7 @@ const CookBook = () => {
         </div>
 
         {/* cookbook lists and recipes */}
-        <div className="bg-gray-800 px-10 py-4 rounded-xl mt-10">
+        <div className="bg-gray-800 px-10 py-4 rounded-xl mt-20">
           <div className="text-white text-center">
             <h2 className="text-2xl text-gray-300 font-semibold mb-5">
               Your
@@ -98,15 +105,15 @@ const CookBook = () => {
             </h2>
           </div>
 
-          <div className="flex justify-around font-semibold text-2xl">
-            <button onClick={()=>{getRecipesOfList("all"); setActiveList("all")}} className={`w-40 p-2 rounded-full bg-yellow-100 hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == "all" && 'active:bg-yel'}`}>
+          <div className="flex justify-around font-semibold flex-wrap space-2 text-2xl">
+            <button onClick={()=>{setActiveList("all")}} className={`min-w-40 p-2 rounded-xl hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList === "all" ? 'bg-yel':'text-gray-300'}`}>
                   All
             </button>
 
             {
               cookbookStats?.listNames?.length && 
               cookbookStats?.listNames?.map((list, index)=>(
-              <button key={index} onClick={()=>{getRecipesOfList(list); setActiveList(list)}} className={`w-40 p-2 rounded-full bg-yellow-100 hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == list && 'active:bg-yel'}`}>
+              <button key={index} onClick={()=>{setActiveList(list)}} className={`min-w-40 p-2 rounded-xl hover:bg-yel shadow shadow-yel text-dark transition-all ${activeList == list ? 'bg-yel': 'text-gray-300'}`}>
                 {list}
               </button>
               ))
@@ -115,18 +122,16 @@ const CookBook = () => {
         </div>
       </div>
 
-      {
-        activeList != null && 
-        <div className="w-4/5 my-10 mx-auto py-8">
-          <h3 className="text-2xl text-yel font-semibold mb-6 text-center">
-            Recipes from 
-            <b className="text-yel"> {activeList} </b>
-          </h3>
+      <div className="w-5/6 mb-10 mx-auto pb-8">
+        <h3 className="text-2xl text-yel font-semibold mb-6 text-center">
+          Recipes from 
+          <b className="text-yel"> {activeList} </b>
+        </h3>
+        {
+          recipeLoading ? <h1>Loading...</h1> :
           <div className="w-full flex gap-5">
             <div
-              className={`flex flex-wrap gap-8 px-4 w-[${
-                recipeList.length * 21 + 10
-              }vw]`}
+              className={`flex flex-wrap gap-8 justify-center`}
             >
               {recipeList?.length ? (
                 recipeList.map((recipe, index) => (
@@ -151,10 +156,8 @@ const CookBook = () => {
               {/* )} */}
             </div>
           </div>
-        </div>
-      }
-
-
+        }
+      </div>
     
     </div>
   );

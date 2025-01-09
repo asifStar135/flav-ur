@@ -14,25 +14,14 @@ export const GET = async (req: NextRequest) => {
     const limit = Number(searchParams.get("limit")) || 5;
 
     const user = await currentUser();
-    let result;
 
-    if(listName == "all"){
-      result = await Cookbook?.find({
-        userId: user?.id,
-      })
-        .sort({ createdAt: -1 })
-        .skip(limit * page)
-        .limit(limit);
-    }
-    else{
-      result = await Cookbook?.find({
-        userId: user?.id,
-        listName
-      })
-        .sort({ createdAt: -1 })
-        .skip(limit * page)
-        .limit(limit);
-    }
+    const result = await Cookbook?.find({
+      userId: user?.id,
+      ...(listName === "all" ? {} : { listName })
+    })
+    .sort({ createdAt: -1 })
+    .skip(limit * page)
+    .limit(limit);
 
     return NextResponse.json({
       result,
