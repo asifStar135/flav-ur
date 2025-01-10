@@ -64,11 +64,12 @@ export default {
       console.log(error);
     }
   },
-  getRecipesOfListCookbook: async (listName: string) => {
+  getRecipesOfListCookbook: async (listName: string, limit: number) => {
     try {
       const { data } = await axios.get("/api/cookbook/fetch", {
         params: {
           listName,
+          limit
         },
       });
 

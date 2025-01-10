@@ -17,11 +17,11 @@ export const GET = async (req: NextRequest) => {
 
     const result = await Cookbook?.find({
       userId: user?.id,
-      listName,
+      ...(listName === "all" ? {} : { listName })
     })
-      .sort({ createdAt: -1 })
-      .skip(limit * page)
-      .limit(limit);
+    .sort({ createdAt: -1 })
+    .skip(limit * page)
+    .limit(limit);
 
     return NextResponse.json({
       result,
