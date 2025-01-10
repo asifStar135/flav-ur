@@ -14,7 +14,7 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
   return (
     <div className={cardWidth + " bg-gray-800 rounded-lg pb-2 self-center"}>
       <img
-        src={recipeItem?.image}
+        src={recipeItem?.image || "/assets/default-recipe.png"}
         alt={recipeItem?.title}
         className={"rounded-t-lg " + cardWidth}
       />

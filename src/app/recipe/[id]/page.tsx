@@ -242,7 +242,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
       <div className="flex w-5/6 mx-auto justify-between my-10">
         <div className="bg-gray-800 self-center rounded-xl shadow shadow-gray-800 w-1/3">
           <img
-            src={recipe?.image}
+            src={recipe?.image || "/assets/default-recipe.png"}
             className="rounded-t-lg self-start"
             alt="Recipe image"
           />

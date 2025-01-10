@@ -1,6 +1,9 @@
+import { connect } from "@/config";
 import { Cookbook } from "@/models";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+
+connect();
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -18,7 +21,7 @@ export const GET = async (req: NextRequest) => {
       result: {
         total: cookBooklist.length,
         notes: notesCount,
-        listNames: Array.from(listNames)
+        listNames: Array.from(listNames),
       },
       success: true,
       status: 200,
