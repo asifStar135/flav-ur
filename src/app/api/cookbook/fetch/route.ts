@@ -9,7 +9,7 @@ connect();
 export const GET = async (req: NextRequest) => {
   try {
     const { searchParams } = req.nextUrl;
-    const listName = searchParams.get("listName") || "*";
+    const listName = searchParams.get("listName") || "all";
     const page = Number(searchParams.get("page")) || 0;
     const limit = Number(searchParams.get("limit")) || 5;
 
@@ -17,14 +17,14 @@ export const GET = async (req: NextRequest) => {
 
     const result = await Cookbook?.find({
       userId: user?.id,
-      ...(listName === "all" ? {} : { listName })
+      ...(listName === "all" ? {} : { listName }),
     })
-    .sort({ createdAt: -1 })
-    .skip(limit * page)
-    .limit(limit);
+      .sort({ createdAt: -1 })
+      .skip(limit * page)
+      .limit(limit);
 
     return NextResponse.json({
-      result,
+      recipes: result,
       status: 200,
       success: true,
     });

@@ -1,7 +1,8 @@
+"use client";
+
 import { getRating, getTime, truncateText } from "@/helper";
-import { Tooltip } from "antd";
-import React from "react";
-import { Recipe } from "@/services";
+import { Modal, Tooltip } from "antd";
+import React, { useState } from "react";
 import { BiFoodTag } from "react-icons/bi";
 import { FaClock, FaStar } from "react-icons/fa";
 import { MdHealthAndSafety } from "react-icons/md";
@@ -9,10 +10,24 @@ import { TbBowlSpoonFilled } from "react-icons/tb";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import moment from "moment";
 import Link from "next/link";
+import { PiNotepad } from "react-icons/pi";
 
 const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
+  const [showModal, setShowModal] = useState(false);
   return (
-    <div className={cardWidth + " bg-gray-800 rounded-lg pb-2 self-center"}>
+    <div
+      className={
+        cardWidth + " bg-gray-800 rounded-lg pb-2 self-center relative"
+      }
+    >
+      {recipeItem?.notes && (
+        <div className="absolute -top-4 -right-4 bg-gray-700 rounded-full p-1 border border-yel hover:scale-110 transition-all cursor-pointer">
+          <PiNotepad
+            className="text-yel text-3xl"
+            onClick={() => setShowModal(true)}
+          />
+        </div>
+      )}
       <img
         src={recipeItem?.image || "/assets/default-recipe.png"}
         alt={recipeItem?.title}
@@ -90,6 +105,20 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
           </div>
         )}
       </div>
+
+      <Modal
+        className="my-modal"
+        open={showModal}
+        onCancel={() => setShowModal(false)}
+        footer={null}
+      >
+        <h1 className="text-xl text-gray-100 text-center font-semibold my-3">
+          Your Custom Recipe <b className="text-yel">Notes</b>
+        </h1>
+        <p className="text-gray-300 text-lg p-3 border-t border-b border-gray-500 rounded-xl">
+          {recipeItem?.notes}
+        </p>
+      </Modal>
     </div>
   );
 };

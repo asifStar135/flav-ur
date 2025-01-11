@@ -25,7 +25,7 @@ export default {
     try {
       const { data } = await axios.get(`/api/cookbook/stats`);
 
-      return data;
+      return data.result;
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch cookbook stats.");
@@ -64,16 +64,16 @@ export default {
       console.log(error);
     }
   },
-  getRecipesOfListCookbook: async (listName: string, limit: number) => {
+  getRecipesOfListCookbook: async (listName: string, page: number) => {
     try {
       const { data } = await axios.get("/api/cookbook/fetch", {
         params: {
           listName,
-          limit
+          page,
         },
       });
 
-      return data;
+      return data.recipes;
     } catch (error) {
       console.log(error);
     }

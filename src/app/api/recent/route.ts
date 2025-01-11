@@ -20,8 +20,8 @@ export const GET = async (req: NextRequest) => {
 
     const recentItems = await RecentItems.find({ userId: user.id })
       .sort({ updatedAt: -1 })
-      .skip((page as number) * 5)
-      .limit(5);
+      .skip((page as number) * 10)
+      .limit(10);
 
     return NextResponse.json({
       recentItems,

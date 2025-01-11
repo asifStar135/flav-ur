@@ -13,11 +13,11 @@ import { SignOutButton, useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import TextArea from "antd/es/input/TextArea";
 import { CiSquarePlus } from "react-icons/ci";
+import Loader from "@/components/Loader";
 
 const Profile = () => {
   //  LOAD Profile DETAILS
   const { user, isLoaded } = useUser();
-  console.log("Logged in User ===>>", user);
   // PREFERENCES FOR EDITING Profile
   const [preference, setPreference] = useState<any>(null);
   // Modals for account actions
@@ -29,21 +29,46 @@ const Profile = () => {
   //   Recent Recipes
   const [recentRecipes, setRecentRecipes] = useState<any>([]);
   const recentPageNo = useRef(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const divRef = useRef(null);
 
   const fetchRecentRecipes = async () => {
     try {
+      if (isLoading) return;
+      setIsLoading(true);
       recentPageNo.current++;
       const recentItems = await Recent.fetchRecentRecipe(
         recentPageNo.current - 1
       );
       setRecentRecipes((state: Array<any>) => state?.concat(recentItems));
-      if (recentItems.length < 5) {
+      if (recentItems.length < 10) {
         recentPageNo.current = -1;
       }
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchRecentRecipes();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    const currentRef = divRef.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, [isLoading]);
 
   const setAvatar = (avt: string) => {
     setUserDetails((state: any) => ({
@@ -140,10 +165,6 @@ const Profile = () => {
       });
     }
   }, [isLoaded, user]);
-
-  useEffect(() => {
-    if (recentPageNo.current == 0) fetchRecentRecipes();
-  }, []);
 
   return isLoaded ? (
     <div>
@@ -278,38 +299,29 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
+      <div className="w-[85%] rounded-xl mx-auto p-6 mb-10 shadow-inner border-2 border-gray-800 shadow-gray-800">
         <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
-          Recently Viewed
+          <b className="text-yel">Recently</b> Viewed Items
         </h3>
-        <div className="overflow-x-scroll w-full scrollbar-hidden flex gap-5">
-          <div
-            className={`flex gap-8 px-4 w-[${
-              recentRecipes.length * 21 + 10
-            }vw]`}
-          >
-            {recentRecipes?.length ? (
-              recentRecipes.map((recipe: any, index: number) => (
-                <RecipeCard
-                  recipeItem={recipe}
-                  key={recipe?.id}
-                  isRecent={true}
-                  cardWidth="w-[20vw]"
-                />
-              ))
-            ) : (
-              <div>No recent items found</div>
-            )}
-            {recentPageNo.current != -1 && (
-              <div
-                className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark rounded-xl self-center w-40 p-3"
-                onClick={() => fetchRecentRecipes()}
-              >
-                <p>More</p>
-                <CiSquarePlus className="text-4xl" />
-              </div>
-            )}
+        <div>
+          <div className="flex gap-5 flex-wrap justify-center">
+            {recentRecipes?.map((recipe: any, index: number) => (
+              <RecipeCard
+                key={index}
+                recipeItem={recipe}
+                cardWidth="w-[270px]"
+              />
+            ))}
           </div>
+          {recentPageNo.current == -1 ? (
+            <h2 className="text-gray-500 mt-5 text-center text-2xl">
+              {"-- End of the List --"}
+            </h2>
+          ) : (
+            <div ref={divRef}>
+              <Loader />
+            </div>
+          )}
         </div>
       </div>
 

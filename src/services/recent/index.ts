@@ -17,9 +17,6 @@ export default {
     try {
       const { data } = await axios.get(`/api/recent?page=${page}`);
       if (data.success) {
-        if (data?.recentItems?.length == 0) {
-          toast.error("No more recent recipes found.");
-        }
         return data?.recentItems;
       } else toast.error(data.error);
     } catch (error) {

@@ -1,35 +1,41 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/services";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { BsStars } from "react-icons/bs";
-import { CiSquarePlus } from "react-icons/ci";
 import { GrSearchAdvanced } from "react-icons/gr";
 import { RiRefreshLine } from "react-icons/ri";
 import { RxCrossCircled } from "react-icons/rx";
 
 export default function Home() {
+  const { user } = useUser();
   const [randomRecipes, setRandomRecipes] = useState<any[]>([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState<any[]>([]);
   const [showRandomRecipes, setShowRandomRecipes] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const pageNo = useRef(0);
-  const { user } = useUser();
+  const divRef = useRef(null);
 
   const fetchRandomRecipes = async () => {
+    setIsLoading(true);
     const response = await Recipe.getRandomRecipe();
     setRandomRecipes(response?.recipes);
+    setIsLoading(false);
   };
 
   const fetchRecommendedRecipes = async () => {
+    if (!user?.unsafeMetadata?.preference) return;
+    pageNo.current++;
     const recipes = await Recipe.getRecommendedRecipes(
-      pageNo.current,
+      pageNo.current - 1,
       user?.unsafeMetadata?.preference
     );
     setRecommendedRecipes((prev) => prev.concat(recipes));
-    pageNo.current++;
+    if (recipes?.length < 10) pageNo.current = -1;
   };
 
   const openRandomRecipes = async () => {
@@ -40,9 +46,24 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (user?.unsafeMetadata?.preference) fetchRecommendedRecipes();
-    console.log(user?.unsafeMetadata);
-  }, [user]);
+    if (isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchRecommendedRecipes();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    const currentRef = divRef.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, [isLoading]);
 
   return (
     <div className="my-8 px-10 text-center">
@@ -123,18 +144,23 @@ export default function Home() {
         {showRandomRecipes && (
           <div>
             <div className="w-full border-t my-8 border-gray-400"></div>
-
-            <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
-              <div className="flex gap-10 w-[110vw]">
-                {randomRecipes?.map((recipe, index) => (
-                  <RecipeCard
-                    recipeItem={recipe}
-                    key={recipe?.id}
-                    cardWidth="w-[19vw]"
-                  />
-                ))}
+            {isLoading ? (
+              <Loader />
+            ) : (
+              <div>
+                <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
+                  <div className="flex gap-10 w-[110vw]">
+                    {randomRecipes?.map((recipe, index) => (
+                      <RecipeCard
+                        recipeItem={recipe}
+                        key={index}
+                        cardWidth="w-[19vw]"
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
@@ -145,22 +171,26 @@ export default function Home() {
           <span className="text-yel">Today's </span>
           recipes just for you
         </p>
-        <div className="flex flex-wrap gap-8 px- justify-center">
-          {recommendedRecipes?.map((recipe, index) => (
-            <RecipeCard
-              recipeItem={recipe}
-              key={recipe?.id}
-              cardWidth="w-[270px]"
-            />
-          ))}
+        <div className="flex flex-wrap gap-8 justify-center">
+          {recommendedRecipes?.length > 0
+            ? recommendedRecipes?.map((recipe, index) => (
+                <RecipeCard
+                  recipeItem={recipe}
+                  key={recipe?.id}
+                  cardWidth="w-[270px]"
+                />
+              ))
+            : null}
         </div>
-        <div
-          className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark hover:scale-110 transition-all rounded-xl w-40 mx-auto p-2 mt-5"
-          onClick={() => fetchRecommendedRecipes()}
-        >
-          <p>More</p>
-          <CiSquarePlus className="text-4xl" />
-        </div>
+        {pageNo.current == -1 ? (
+          <h2 className="text-gray-500 mt-5 text-center text-2xl">
+            {"-- End of the List --"}
+          </h2>
+        ) : (
+          <div ref={divRef}>
+            <Loader />
+          </div>
+        )}
       </div>
     </div>
   );

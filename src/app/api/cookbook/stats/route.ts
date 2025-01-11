@@ -10,18 +10,26 @@ export const GET = async (req: NextRequest) => {
     const user = await currentUser();
     const cookBooklist = await Cookbook.find({ userId: user?.id });
 
-    const listNames = new Set();
+    const listMap = new Map();
     let notesCount = 0;
     cookBooklist.forEach((item) => {
-      listNames.add(item.listName);
+      listMap.set(item.listName, (listMap.get(item.listName) || 0) + 1);
       notesCount += item.notes.length ? 1 : 0;
     });
+    let listNames = [];
+    //  iterate through the map and store {listName, count} in the listNames array
+    for (let [listName, count] of listMap) {
+      listNames.push({ listName, count });
+    }
+    listNames = listNames.sort(
+      (a, b) => b.count - a.count // sort by count in descending orderß
+    );
 
     return NextResponse.json({
       result: {
         total: cookBooklist.length,
         notes: notesCount,
-        listNames: Array.from(listNames),
+        listNames,
       },
       success: true,
       status: 200,
