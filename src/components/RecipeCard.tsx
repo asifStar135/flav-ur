@@ -2,7 +2,7 @@
 
 import { getRating, getTime, truncateText } from "@/helper";
 import { Modal, Tooltip } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BiFoodTag } from "react-icons/bi";
 import { FaClock, FaStar } from "react-icons/fa";
 import { MdHealthAndSafety } from "react-icons/md";
@@ -14,6 +14,12 @@ import { PiNotepad } from "react-icons/pi";
 
 const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
   const [showModal, setShowModal] = useState(false);
+  const [isWide, setIsWide] = useState(true);
+
+  useEffect(() => {
+    const width = window.innerWidth;
+    if (width < 800) setIsWide(false);
+  }, []);
   return (
     <div
       className={
@@ -33,31 +39,36 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
         alt={recipeItem?.title}
         className={"rounded-t-lg " + cardWidth}
       />
-      <div className="px-3 py-2">
+      <div className="px-2 xl:px-3 py-2">
         <Tooltip
           title={recipeItem?.title?.length > 25 ? recipeItem.title : ""}
           color="#2b3348"
-          className="cursor-pointer text-lg font-semibold text-gray-300"
-          overlayStyle={{ maxWidth: "200px" }} // Optional: Set max width for the tooltip
+          className="cursor-pointer xl:text-lg text-gray-300"
+          styles={{ root: { maxWidth: "200px" } }}
+          // overlayStyle={{ maxWidth: "200px" }} // Optional: Set max width for the tooltip
           placement="top" // Optional: Adjust placement
         >
-          {truncateText(recipeItem?.title, 25)}
+          {truncateText(recipeItem?.title, isWide ? 25 : 18)}
         </Tooltip>
-        <div className="flex justify-between items-center text-lg my-2 text-gray-400">
+        <div className="flex justify-between items-center text-lg my-1 xl:my-2 text-gray-400">
           <div className="flex items-center gap-2">
             <FaClock className="text-blue-600" />
             <span>{getTime(recipeItem?.readyInMinutes)}</span>
           </div>
           <div className="flex items-center gap-2">
             <TbBowlSpoonFilled className="text-green-600" />
-            <span>{recipeItem?.servings} servings</span>
+            <span>
+              {recipeItem?.servings} {isWide ? "servings" : null}
+            </span>
           </div>
         </div>
 
-        <div className="flex justify-between items-center text-lg my-2 text-gray-400">
+        <div className="flex justify-between items-center text-lg my-1 xl:my-2 text-gray-400">
           <div className="flex items-center gap-2 text-gray-400">
             <MdHealthAndSafety className="text-green-400" />
-            <span>Health Score: {recipeItem?.healthScore}</span>
+            <span>
+              {isWide ? "Health Score:" : null} {recipeItem?.healthScore}
+            </span>
           </div>
 
           <div
@@ -93,7 +104,7 @@ const RecipeCard = ({ recipeItem, isRecent, cardWidth }: any) => {
       <div className="flex flex-col items-center">
         <Link
           href={"/recipe/" + recipeItem?.id}
-          className="mt-4 w-3/4 bg-yellow-500 text-center hover:bg-yellow-600 text-dark font-bold py-2 px-4 rounded-lg transition-colors"
+          className="mt-2 xl:mt-4 xl:w-3/4 bg-yellow-500 text-center hover:bg-yellow-600 text-dark font-bold py-1 xl:py-2 px-4 rounded-lg transition-colors"
         >
           View Recipe
         </Link>

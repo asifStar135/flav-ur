@@ -6,13 +6,13 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <div className="flex px-20 py-5 justify-between">
+    <div className="xl:flex px-20 py-5 justify-between">
       <div className="flex w-1/6">
         <Link href="/">
           <img src="/assets/logo.png" className="" alt="" />
         </Link>
       </div>
-      <div className="flex gap-10 text-yel">
+      <div className="xl:flex gap-10 text-yel">
         <Link href="/discover" className="flex items-center gap-3 text-2xl">
           <GrSearchAdvanced />
           Discover

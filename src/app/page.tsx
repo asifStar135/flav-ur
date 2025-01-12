@@ -66,18 +66,18 @@ export default function Home() {
   }, [isLoading]);
 
   return (
-    <div className="my-8 px-10 text-center">
+    <div className="my-8 px-5 lg:px-10 text-center">
       {/* WELCOME SECTION WITH INVITATION TO DISCOVER PAGE */}
-      <div className="flex justify-between items-center px-20 py-14">
+      <div className="xl:flex justify-between items-center xl:px-20 py-14">
         <div>
           <h1 className="text-4xl">
             Welcome back <b className="text-yel">Chief !</b>
           </h1>
-          <h2 className="text-xl font-mono italic my-5">
+          <h2 className="text-lg xl:text-xl text-gray-300 font-mono italic my-5">
             Explore thousands of recipes to ignite your culinary passion!
           </h2>
           <div className="my-7 shadow-lg shadow-gray-700 bg-gray-700 py-3 px-6 rounded-2xl">
-            <p className="font-medium text-xl">
+            <p className="font-medium text-lg xl:text-xl">
               Discover Meals/Snacks/Deserts that fits your preferences only in{" "}
               <b className="text-yel text-2xl">Flav'Ur !</b>{" "}
             </p>
@@ -87,7 +87,7 @@ export default function Home() {
             </p>
             <Link
               href="/discover"
-              className="flex my-3 justify-center w-1/2 mx-auto font-semibold items-center gap-5 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
+              className="flex my-3 justify-center w-3/4 xl:w-1/2 mx-auto font-semibold items-center gap-5 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
             >
               <span>Discover yours</span>
               <GrSearchAdvanced className="text-3xl" />
@@ -97,25 +97,25 @@ export default function Home() {
         <img
           src="/assets/cook.png"
           alt=""
-          className="w-52 rounded-full mx-28"
+          className="w-52 rounded-full mx-auto"
         />
       </div>
 
       {/* RANDOM RECIPE GENERATOR */}
-      <div className="bg-gray-700 px-16 py-10 mx-20 rounded-2xl">
-        <div className=" flex justify-between items-center">
+      <div className="bg-gray-700 px-5 lg:px-16 py-10 lg:mx-20 rounded-2xl">
+        <div className="flex flex-col xl:flex-row justify-between items-center">
           <div>
             <p className="text-lg">
               Want to explore new delights in the kitchen? 🍳✨ We got your back
               ✅
             </p>
-            <h2 className="text-2xl my-3">
+            <h2 className="text-xl xl:text-2xl my-3 font-semibold">
               Try some Random Recipes by{" "}
               <b className="text-yel italic">Flav'Ur</b>{" "}
             </h2>
           </div>
           {showRandomRecipes ? (
-            <div className="flex justify-center gap-5">
+            <div className="flex justify-center gap-5 self-center">
               <div
                 className="flex items-center gap-3 text-xl cursor-pointer border border-yel text-yel p-2 rounded-2xl"
                 onClick={() => fetchRandomRecipes()}
@@ -133,7 +133,7 @@ export default function Home() {
             </div>
           ) : (
             <div
-              className="flex cursor-pointer shadow-yel hover:shadow-md font-semibold items-center gap-2 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
+              className="flex self-center cursor-pointer shadow-yel hover:shadow-md font-semibold items-center gap-2 hover:scale-105 transition-all duration-300 text-gray-900 p-4 rounded-full text-2xl bg-yel"
               onClick={() => openRandomRecipes()}
             >
               <span>Generate Recipes</span>
@@ -149,12 +149,12 @@ export default function Home() {
             ) : (
               <div>
                 <div className="overflow-auto whitespace-nowrap scrollbar-hidden">
-                  <div className="flex gap-10 w-[110vw]">
+                  <div className="flex gap-4 xl:gap-10 xl:w-[110vw]">
                     {randomRecipes?.map((recipe, index) => (
                       <RecipeCard
                         recipeItem={recipe}
                         key={index}
-                        cardWidth="w-[19vw]"
+                        cardWidth="w-[270px] xl:w-[19vw]"
                       />
                     ))}
                   </div>
@@ -171,13 +171,13 @@ export default function Home() {
           <span className="text-yel">Today's </span>
           recipes just for you
         </p>
-        <div className="flex flex-wrap gap-8 justify-center">
+        <div className="flex flex-wrap gap-3 xl:gap-8 justify-evenly xl:justify-center">
           {recommendedRecipes?.length > 0
             ? recommendedRecipes?.map((recipe, index) => (
                 <RecipeCard
                   recipeItem={recipe}
                   key={recipe?.id}
-                  cardWidth="w-[270px]"
+                  cardWidth="w-[160px] xl:w-[270px]"
                 />
               ))
             : null}
