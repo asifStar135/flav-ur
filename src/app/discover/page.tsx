@@ -9,6 +9,8 @@ import { CiSquarePlus } from "react-icons/ci";
 import { GrSearchAdvanced } from "react-icons/gr";
 import { LuSettings2 } from "react-icons/lu";
 import Link from "next/link";
+import Loader from "@/components/Loader";
+import InfiniteLoadingHook from "@/components/InfiniteLoadingHook";
 const imageBaseUrl = "https://img.spoonacular.com/recipes/";
 
 const Discover = () => {
@@ -16,13 +18,26 @@ const Discover = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filterResult, setFilterResult] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
-  const pageNo = useRef(0);
   const [options, setOptions] = useState({
     cuisines: Options.cuisines,
     excludeCuisines: Options.cuisines,
     mealTypes: Options.mealTypes,
     diets: Options.dietTypes,
   });
+
+  //  infinite loading for both the part
+  const filterDiv = useRef(null);
+  const searchDiv = useRef(null);
+  const pageNo = useRef(0),
+    limit = useRef(5);
+  const [loading, setLoading] = useState(false);
+
+  InfiniteLoadingHook(filterDiv, () => submitFilters(false), loading);
+  InfiniteLoadingHook(
+    searchDiv,
+    () => getSuggetion(searchQuery, false),
+    loading
+  );
 
   const [filter, setFilter] = useState(Options.defaultFilters);
   const [isFilterChanged, setIsFilterChanged] = useState(false);
@@ -41,6 +56,7 @@ const Discover = () => {
 
   const submitFilters = async (isNew: boolean) => {
     setShowFilterModal(false);
+    setLoading(true);
     const result = await Recipe?.getFilteredRecipes(
       pageNo.current,
       filter,
@@ -51,7 +67,19 @@ const Discover = () => {
     } else {
       setFilterResult((prev) => prev?.concat(result));
     }
+    setLoading(false);
     pageNo.current++;
+  };
+
+  const getSuggetion = async (query: string, isNew: boolean) => {
+    if (isNew) limit.current = 5;
+    else limit.current += 5;
+
+    Recipe?.getTitleSuggestions(debouncedQuery, limit.current).then(
+      (result) => {
+        setSearchResult(result);
+      }
+    );
   };
 
   const switchModes = () => {
@@ -72,10 +100,7 @@ const Discover = () => {
 
   useEffect(() => {
     if (debouncedQuery?.length > 2) {
-      Recipe?.getTitleSuggestions(debouncedQuery).then((result) => {
-        console.log("first result: " + result);
-        setSearchResult(result);
-      });
+      getSuggetion(debouncedQuery, false);
     } else setSearchResult([]);
   }, [debouncedQuery]);
 
@@ -246,9 +271,12 @@ const Discover = () => {
         )}
       </div>
 
-      {/* SIMPLE RECCOMENDED RECIPES BASED ON PREFERENCES */}
-      {filterResult?.length ? (
-        <div className="my-10 p-10 w-11/12 mx-auto pb-5 rounded-xl border-r border-l border-yel ">
+      {/* SIMPLE RECCOMENDED RECIPES BASED ON FILTERS */}
+      {filterResult?.length && isFilter ? (
+        <div className="my-10 p-10 w-11/12 mx-auto pb-5">
+          <h1 className="text-3xl font-semibold mb-5 text-gray-300 text-center">
+            -- Your <b className="text-yel">Filtered</b> Recipes --
+          </h1>
           <div className="flex flex-wrap gap-8 justify-center">
             {filterResult?.map((recipe: any, index) => (
               <RecipeCard
@@ -258,12 +286,8 @@ const Discover = () => {
               />
             ))}
           </div>
-          <div
-            className="text-2xl cursor-pointer flex items-center justify-center text-yel border border-yel hover:bg-yel hover:text-dark hover:scale-110 transition-all rounded-xl w-40 mx-auto p-2 mt-5"
-            onClick={() => submitFilters(false)}
-          >
-            <p>More</p>
-            <CiSquarePlus className="text-4xl" />
+          <div ref={filterDiv}>
+            <Loader />
           </div>
         </div>
       ) : null}

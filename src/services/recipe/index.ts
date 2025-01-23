@@ -86,12 +86,12 @@ export default {
       return data?.results;
     } catch (error) {}
   },
-  getTitleSuggestions: async (query: string) => {
+  getTitleSuggestions: async (query: string, limit: number) => {
     try {
       const { data } = await client.get("/recipes/autocomplete", {
         params: {
           query,
-          number: 25,
+          number: limit,
         },
       });
 
