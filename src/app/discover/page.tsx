@@ -24,6 +24,13 @@ const Discover = () => {
     mealTypes: Options.mealTypes,
     diets: Options.dietTypes,
   });
+  //  handling mobile devices
+  const [isWide, setIsWide] = useState(true);
+
+  useEffect(() => {
+    const width = window.innerWidth;
+    if (width < 800) setIsWide(false);
+  }, []);
 
   //  infinite loading for both the part
   const filterDiv = useRef(null);
@@ -82,9 +89,10 @@ const Discover = () => {
     );
   };
 
-  const switchModes = () => {
+  const switchModes = (value: boolean) => {
+    if (value == isFilter) return;
     setSearchQuery("");
-    setIsFilter(!isFilter);
+    setIsFilter(value);
   };
 
   useEffect(() => {
@@ -129,33 +137,32 @@ const Discover = () => {
         Find the <b className="text-yel"> Flav'Ur </b> that fits you
       </h1>
 
-      <div className="flex w-1/3 justify-between text-xl border border-yel mx-auto rounded-xl cursor-pointer">
+      <div className="flex w-4/5 xl:w-1/3 justify-between text-xl border border-yel mx-auto rounded-xl cursor-pointer">
         <div
           className={
-            (isFilter ? "bg-yel text-dark" : "") + " rounded-l-lg p-2 w-1/2 p"
+            (isFilter ? "bg-yel text-dark" : "") +
+            " rounded-l-lg p-2 w-1/2 text-center"
           }
-          onClick={() => switchModes()}
+          onClick={() => switchModes(true)}
         >
-          Apply filters with a query
+          Apply filters {isWide ? "with a query" : ""}
         </div>
         <div
           className={
             (isFilter == false ? "bg-yel text-dark" : "") +
-            " rounded-r-lg p-2 w-1/2"
+            " rounded-r-lg p-2 w-1/2 text-center"
           }
-          onClick={() => switchModes()}
+          onClick={() => switchModes(false)}
         >
-          Search recipes by name
+          Search recipes {isWide ? "by name" : ""}
         </div>
       </div>
 
-      <div className="my-4 w-[60%] mx-auto bg-gray-800 p-5 rounded-xl">
-        <div className="flex items-center gap-8 mb-4">
+      <div className="my-4 w-11/12 xl:w-[60%] mx-auto bg-gray-800 p-5 rounded-xl">
+        <div className="flex items-center gap-5 xl:gap-8 mb-4">
           <Input
             placeholder={
-              isFilter
-                ? "Type any query to filter results..."
-                : "Search recipes by name..."
+              isFilter ? "Type anything to filter" : "Search recipes by name"
             }
             autoFocus
             className="rounded-xl border-yel text-2xl px-5"
@@ -168,13 +175,13 @@ const Discover = () => {
 
         {isFilter ? (
           <div>
-            <div className="flex justify-between px-3">
-              <div className="flex justify-center items-end gap-5">
+            <div className="flex justify-between xl:px-3">
+              <div className="flex flex-wrap justify-center items-end gap-5">
                 <Select
                   title="Select meal type "
                   allowClear
-                  placeholder="Select meal type..."
-                  className="w-48 mb-3 text-lg"
+                  placeholder="Select meal type"
+                  className="w-40 xl:w-48 mb-3 text-lg"
                   options={options.mealTypes}
                   showSearch
                   value={filter?.mealType || undefined}
@@ -185,8 +192,8 @@ const Discover = () => {
                 <Select
                   title="choose your cuisine"
                   allowClear
-                  placeholder="Select cuisine..."
-                  className="w-48 mb-3 text-lg"
+                  placeholder="Select cuisine"
+                  className="w-40 xl:w-48 mb-3 text-lg"
                   options={options.cuisines}
                   showSearch
                   value={filter?.cuisine || undefined}
@@ -208,14 +215,14 @@ const Discover = () => {
                     value={filter?.maxReadyTime}
                   />
                 </div>
-              </div>
 
-              <div
-                className="flex text-lg gap-3 items-center border cursor-pointer text-gray-300 self-center hover:bg-yel hover:text-dark transition-all border-yel rounded-xl px-2 py-1"
-                onClick={() => setShowFilterModal(true)}
-              >
-                <span>More</span>
-                <LuSettings2 className="text-2xl" />
+                <div
+                  className="flex text-lg gap-3 items-center border cursor-pointer text-gray-300 self-center hover:bg-yel hover:text-dark transition-all border-yel rounded-xl px-2 py-1"
+                  onClick={() => setShowFilterModal(true)}
+                >
+                  <span>More</span>
+                  <LuSettings2 className="text-2xl" />
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-center gap-10 mt-5">
@@ -224,11 +231,11 @@ const Discover = () => {
                   className="px-6 py-2 border border-gray-400 hover:bg-gray-400 hover:text-gray-800 hover:scale-110 transition-all text-gray-400 text-2xl rounded-xl"
                   onClick={() => handleClearFilter()}
                 >
-                  Clear filters
+                  Reset
                 </button>
               )}
               <button
-                className="px-6 py-3 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
+                className="px-6 py-2 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
                 onClick={() => submitFilters(true)}
               >
                 Get Results
@@ -238,7 +245,7 @@ const Discover = () => {
         ) : (
           <div>
             {searchResult?.length > 0 ? (
-              <div className="flex flex-col w-2/3 gap-3 overflow-y-auto max-h-[50vh] scrollbar-hidden mx-auto">
+              <div className="flex flex-col xl:w-2/3 gap-3 overflow-y-auto max-h-[50vh] scrollbar-hidden mx-auto">
                 {searchResult?.map((item: any) => (
                   <div className="flex gap-3 items-center p-1 border border-t-0 rounded-full border-gray-600">
                     <img
@@ -258,7 +265,7 @@ const Discover = () => {
               </div>
             ) : debouncedQuery?.length < 3 ? (
               <p className="text-2xl text-gray-300 text-center my-8">
-                Type at least 3 characters to get results !
+                Enter at least 3 characters . .
               </p>
             ) : (
               <p className="text-2xl text-gray-400 my-8 text-center">
@@ -273,16 +280,16 @@ const Discover = () => {
 
       {/* SIMPLE RECCOMENDED RECIPES BASED ON FILTERS */}
       {filterResult?.length && isFilter ? (
-        <div className="my-10 p-10 w-11/12 mx-auto pb-5">
+        <div className="my-10 px-2 xl:p-10 w-11/12 mx-auto pb-5">
           <h1 className="text-3xl font-semibold mb-5 text-gray-300 text-center">
             -- Your <b className="text-yel">Filtered</b> Recipes --
           </h1>
-          <div className="flex flex-wrap gap-8 justify-center">
+          <div className="flex flex-wrap gap-3 xl:gap-6 justify-center">
             {filterResult?.map((recipe: any, index) => (
               <RecipeCard
                 recipeItem={recipe}
                 key={recipe?.id}
-                cardWidth="w-[270px]"
+                cardWidth="w-[160px] xl:w-[270px]"
               />
             ))}
           </div>
@@ -297,29 +304,31 @@ const Discover = () => {
         footer={null}
         onCancel={() => setShowFilterModal(false)}
         className="my-modal"
-        width="60vw"
+        width={isWide ? "60vw" : "95vw"}
       >
-        <div className="p-4">
+        <div className="py-4 xl:px-4">
           <h1 className="text-yel font-semibold text-3xl text-center">
             All your choices
           </h1>
 
           <div>
             <div className="flex items-center justify-between gap-3 mt-5">
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
               <p className="text-lg text-gray-400">Taste Matters</p>
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
             </div>
-            <div className="flex justify-around">
+            <div className="flex justify-around flex-wrap">
               <div>
-                <p className="text-lg">What are u looking for</p>
+                <p className="text-lg">
+                  {isWide ? "What are u looking for" : "Choose meal type"}
+                </p>
                 <Select
                   title="Select meal type "
                   allowClear
                   placeholder="Select meal type..."
-                  className="w-48 my-2 text-lg"
+                  className="w-44 xl:w-52 my-2 text-lg"
                   options={options.mealTypes}
-                  value={filter?.mealType}
+                  value={filter?.mealType || undefined}
                   showSearch
                   onChange={(value: string) =>
                     handleChangeInFilters("mealType", value)
@@ -327,12 +336,14 @@ const Discover = () => {
                 />
               </div>
               <div>
-                <p className="text-lg">Choose favourite cuisine</p>
+                <p className="text-lg">
+                  Choose {isWide ? "favourite" : ""} cuisine
+                </p>
                 <Select
                   title="choose your cuisine"
                   allowClear
                   placeholder="Select cuisine..."
-                  className="w-48 my-2 text-lg"
+                  className="w-44 xl:w-52 my-2 text-lg"
                   options={options.cuisines}
                   showSearch
                   value={filter?.cuisine || undefined}
@@ -347,7 +358,7 @@ const Discover = () => {
                   title="Cuisine you don't like"
                   allowClear
                   placeholder="Exclude cuisine..."
-                  className="w-48 my-2 text-lg"
+                  className="w-52 my-2 text-lg"
                   options={options.excludeCuisines}
                   showSearch
                   value={filter?.excludeCuisine || undefined}
@@ -358,12 +369,12 @@ const Discover = () => {
               </div>
             </div>
             <div className="flex items-center justify-between gap-3 mt-5">
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
               <p className="text-lg text-gray-400">Diet Matters</p>
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center xl:justify-between gap-4 flex-wrap">
               <div>
                 <p className="mb-1 text-lg">Choose your preferred diet</p>
                 <Select
@@ -420,12 +431,12 @@ const Discover = () => {
             </div>
 
             <div className="flex items-center justify-between gap-3 mt-5">
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
               <p className="text-lg text-gray-400">Requirements</p>
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center xl:justify-between flex-wrap gap-4">
               <div>
                 <p className="mb-1 text-lg">Include equipments </p>
                 <Select
@@ -457,7 +468,7 @@ const Discover = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-center xl:justify-between flex-wrap gap-4 mt-2">
               <div>
                 <p className="mb-1 text-lg">Ingredients you have</p>
                 <Select
@@ -489,19 +500,20 @@ const Discover = () => {
             </div>
 
             <div className="flex items-center justify-between mt-5">
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
               <p className="text-lg text-gray-400">Other Choices</p>
-              <div className="border-t border-gray-400 w-1/3"></div>
+              <div className="border-t border-gray-400 w-1/4 xl:w-1/3"></div>
             </div>
 
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-center xl:justify-between flex-wrap gap-4 mt-2">
               <div>
                 <p className="mb-1 text-lg">Intolerances you want to add </p>
                 <Select
                   mode="multiple"
                   placeholder="Enter intolerances..."
-                  className="w-80 text-lg"
+                  className="w-80 text-xl"
                   allowClear
+                  showSearch={false}
                   value={filter?.intolerances || undefined}
                   onChange={(value) => {
                     handleChangeInFilters("intolerances", value);
@@ -536,15 +548,14 @@ const Discover = () => {
               </div>
             </div>
 
-            <div className="flex justify-center gap-8 border-2 border-yel rounded-xl p-3 w-3/4 mx-auto my-8">
+            <div className="flex justify-center flex-wrap gap-8 border-2 border-yel rounded-xl p-3 w-3/4 mx-auto my-8">
               <div>
-                <p className="mb-1 text-xl">Select sorting field </p>
+                <p className="mb-1 text-xl">Sort Results by </p>
                 <Select
-                  className="w-60"
+                  className="w-60 text-2xl"
                   allowClear
                   placeholder="Select sorting field..."
                   options={Options?.sortingOptions}
-                  showSearch
                   value={filter?.sort || undefined}
                   onChange={(value) => {
                     setFilter((prev) => ({
@@ -555,9 +566,7 @@ const Discover = () => {
                 />
               </div>
               <div className="text-center">
-                <p className="mb-1 text-xl text-center">
-                  Select sorting direction{" "}
-                </p>
+                <p className="mb-1 text-xl text-center">Sorting order </p>
                 <Radio.Group
                   value={filter?.sortDirection}
                   onChange={(e) => {
@@ -567,10 +576,10 @@ const Discover = () => {
                     }));
                   }}
                 >
-                  <Radio value="asc" className="text-xl">
+                  <Radio value="asc" className="text-2xl">
                     Asc
                   </Radio>
-                  <Radio value="desc" className="text-xl">
+                  <Radio value="desc" className="text-2xl">
                     Desc
                   </Radio>
                 </Radio.Group>
@@ -583,11 +592,11 @@ const Discover = () => {
                   className="px-6 py-2 border border-gray-400 hover:bg-gray-400 hover:text-gray-800 hover:scale-110 transition-all text-gray-400 text-2xl rounded-xl"
                   onClick={() => handleClearFilter()}
                 >
-                  Clear filters
+                  Reset
                 </button>
               )}
               <button
-                className="px-6 py-3 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
+                className="px-6 py-2 bg-yel hover:bg-yellow-500 hover:scale-110 transition-all text-dark text-2xl font-semibold rounded-xl"
                 onClick={() => submitFilters(true)}
               >
                 Get Results
