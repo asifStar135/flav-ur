@@ -225,7 +225,7 @@ const Profile = () => {
                 className="w-full"
                 options={Options.cuisines}
                 showSearch
-                value={preference?.cuisine}
+                value={preference?.cuisine || undefined}
                 onChange={(value: string) =>
                   setPreference((state: any) => ({ ...state, cuisine: value }))
                 }
@@ -240,7 +240,7 @@ const Profile = () => {
                 placeholder="Select diet type..."
                 options={Options.dietTypes}
                 showSearch
-                value={preference?.diet}
+                value={preference?.diet || undefined}
                 onChange={(value: string) =>
                   setPreference((state: any) => ({ ...state, diet: value }))
                 }

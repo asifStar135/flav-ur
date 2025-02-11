@@ -40,19 +40,19 @@ const Page = () => {
   const { user, isLoaded } = useUser();
 
   return (
-    <div className="my-16 w-4/5 mx-auto bg-gray-900 p-10">
-      <h1 className="text-3xl font-semibold mb-6 text-center">
+    <div className="xl:my-16 w-11/12 xl:w-4/5 mx-auto bg-gray-900 p-4 xl:p-10">
+      <h1 className="text-xl xl:text-3xl font-semibold mb-6 text-center">
         Complete Your Profile to Get Started
       </h1>
 
       {editAvatar ? (
-        <div className="w-3/4 mx-auto">
+        <div className="w-11/12 lg:w-3/4 mx-auto">
           <h1 className="font-semibold text-2xl my-4">Choose yourself 🤠</h1>
-          <div className="grid grid-cols-4 gap-8 my-8">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-8 my-8">
             {getRandomAvatars().map((avt) => (
               <img
                 src={avt}
-                className="w-32 h-32 border border-yel p-1 rounded-full object-cover hover:scale-110 transition-all cursor-pointer"
+                className="lg:w-32 lg:h-32 border border-yel p-1 rounded-full object-cover hover:scale-110 transition-all cursor-pointer"
                 alt="Select this avatar"
                 onClick={() => selectAvatar(avt)}
               />
@@ -60,10 +60,10 @@ const Page = () => {
           </div>
         </div>
       ) : (
-        <div className="flex justify-around items-center">
-          <div className="w-2/5">
+        <div className="flex flex-col xl:flex-row justify-around items-center">
+          <div className="w-11/12 xl:w-2/5">
             {/* Avatar Upload */}
-            <div className="flex items-center mb-6 gap-8 justify-center">
+            <div className="flex flex-col lg:flex-row items-center mb-6 gap-3 lg:gap-8 justify-center">
               <div className="flex items-center justify-center overflow-hidden mb-4">
                 <img
                   src={avatar}
@@ -73,7 +73,7 @@ const Page = () => {
               </div>
               <button
                 onClick={() => setEditAvatar(true)}
-                className="cursor-pointer bg-yel hover:bg-yel2 transition-all text-white px-4 py-2 rounded-lg"
+                className="cursor-pointer bg-yel hover:bg-yel2 transition-all text-white px-4 py-2 rounded-lg mx-auto"
               >
                 Change Avatar
               </button>
@@ -92,91 +92,86 @@ const Page = () => {
               />
             </div>
           </div>
-          <div>
-            <div className="text-lg">
-              {/* <p className="text-3xl text-gray-200 text-center mb-8">
-              Your Preferences
-            </p> */}
-              <div className="flex gap-8 my-5 text-gray-400">
-                <div>
-                  <p className="mb-2">Choose your fav cuisine</p>
-                  <Select
-                    title="choose your favorite cuisine"
-                    allowClear
-                    placeholder="Select cuisine..."
-                    className="w-full"
-                    options={Options.cuisines}
-                    showSearch
-                    value={preference?.cuisine}
-                    onChange={(value: string) =>
-                      setPreference((state) => ({ ...state, cuisine: value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <p className="mb-2">Choose your preferred diet</p>
-                  <Select
-                    className="w-full"
-                    allowClear
-                    title="choose your diet type"
-                    placeholder="Select diet type..."
-                    options={Options.dietTypes}
-                    showSearch
-                    value={preference?.diet}
-                    onChange={(value: string) =>
-                      setPreference((state) => ({ ...state, diet: value }))
-                    }
-                  />
-                </div>
+          <div className="text-lg">
+            <div className="flex gap-3 xl:gap-8 px-3 my-5 text-gray-400">
+              <div>
+                <p className="mb-2">Choose your cuisine</p>
+                <Select
+                  title="choose your favorite cuisine"
+                  allowClear
+                  placeholder="Select cuisine..."
+                  // className="w-full"
+                  options={Options.cuisines}
+                  showSearch
+                  value={preference?.cuisine || undefined}
+                  onChange={(value: string) =>
+                    setPreference((state) => ({ ...state, cuisine: value }))
+                  }
+                />
               </div>
-              <div className="flex justify-between my-5 text-gray-400">
-                <div className="flex gap-3 items-center mx-8">
-                  <p>Dairy free</p>
-                  <Switch
-                    checked={preference?.dairyFree}
-                    onChange={(checked) =>
-                      setPreference((state) => ({
-                        ...state,
-                        dairyFree: checked,
-                      }))
-                    }
-                  />
-                </div>
-                <div className="flex gap-3 items-center mx-8">
-                  <p>Gluten free</p>
-                  <Switch
-                    checked={preference?.glutenFree}
-                    onChange={(checked) =>
-                      setPreference((state) => ({
-                        ...state,
-                        glutenFree: checked,
-                      }))
-                    }
-                  />
-                </div>
+              <div>
+                <p className="mb-2">Choose your diet</p>
+                <Select
+                  // className="w-full"
+                  allowClear
+                  title="choose your diet type"
+                  placeholder="Select diet type..."
+                  options={Options.dietTypes}
+                  showSearch
+                  value={preference?.diet || undefined}
+                  onChange={(value: string) =>
+                    setPreference((state) => ({ ...state, diet: value }))
+                  }
+                />
               </div>
-              <div className="text-gray-400">
-                <p>Allergies (optional)</p>
-                <input
-                  type="text"
-                  placeholder="E.g., peanuts, shellfish"
-                  className="w-full p-2 bg-gray-700 rounded-lg text-white my-2"
-                  value={preference?.allergies}
-                  onChange={(e) =>
+            </div>
+            <div className="flex justify-between my-5 text-gray-400">
+              <div className="flex gap-3 items-center mx-4 xl:mx-8">
+                <p>Dairy free</p>
+                <Switch
+                  checked={preference?.dairyFree}
+                  onChange={(checked) =>
                     setPreference((state) => ({
                       ...state,
-                      allergies: e.target.value,
+                      dairyFree: checked,
                     }))
                   }
                 />
               </div>
+              <div className="flex gap-3 items-center mx-4 xl:mx-8">
+                <p>Gluten free</p>
+                <Switch
+                  checked={preference?.glutenFree}
+                  onChange={(checked) =>
+                    setPreference((state) => ({
+                      ...state,
+                      glutenFree: checked,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <div className="text-gray-400 max-w-[85%] mx-auto">
+              <p>Allergies (optional)</p>
+              <input
+                type="text"
+                placeholder="E.g., peanuts, shellfish"
+                className="w-full p-2 bg-gray-700 rounded-lg text-white my-2"
+                value={preference?.allergies}
+                onChange={(e) =>
+                  setPreference((state) => ({
+                    ...state,
+                    allergies: e.target.value,
+                  }))
+                }
+              />
             </div>
           </div>
         </div>
       )}
 
       {/* Submit Button */}
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-8 xl:mt-0">
         {editAvatar == false && (
           <button
             onClick={handleSubmit}
