@@ -168,8 +168,8 @@ const Profile = () => {
 
   return isLoaded ? (
     <div>
-      <div className="w-4/5 my-10 mx-auto bg-gray-800 rounded-lg px-20 py-10 flex justify-around">
-        <div className="p-8 w-1/3 border border-yellow-700 rounded-2xl text-center relative">
+      <div className="w-11/12 xl:w-4/5 mb-10 xl:mt-10 mx-auto bg-gray-800 rounded-lg px-4 xl:px-20 py-10 xl:flex justify-around">
+        <div className="p-5 xl:p-8 w-5/6 mx-auto xl:w-1/3 border border-yellow-700 rounded-2xl text-center relative">
           <Popover
             content={content}
             trigger="click"
@@ -211,13 +211,13 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="text-lg">
+        <div className="text-lg mt-8 xl:m-0">
           <p className="text-3xl text-gray-200 text-center mb-8">
             Your Preferences
           </p>
           <div className="flex gap-8 my-5 text-gray-400">
             <div>
-              <p className="mb-2">Choose your fav cuisine</p>
+              <p className="mb-2">Choose your cuisine</p>
               <Select
                 title="choose your favorite cuisine"
                 allowClear
@@ -232,7 +232,7 @@ const Profile = () => {
               />
             </div>
             <div>
-              <p className="mb-2">Choose your preferred diet</p>
+              <p className="mb-2">Choose your diet</p>
               <Select
                 className="w-full"
                 allowClear
@@ -248,7 +248,7 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex justify-between my-5 text-gray-400">
-            <div className="flex gap-3 items-center mx-8">
+            <div className="flex gap-3 items-center mx-3 xl:mx-8">
               <p>Dairy free</p>
               <Switch
                 checked={preference?.dairyFree}
@@ -260,7 +260,7 @@ const Profile = () => {
                 }
               />
             </div>
-            <div className="flex gap-3 items-center mx-8">
+            <div className="flex gap-3 items-center mx-3 xl:mx-8">
               <p>Gluten free</p>
               <Switch
                 checked={preference?.glutenFree}
@@ -299,7 +299,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="w-[85%] rounded-xl mx-auto p-6 mb-10 shadow-inner border-2 border-gray-800 shadow-gray-800">
+      <div className="w-11/12 xl:w-[85%] rounded-xl mx-auto p-6 mb-10 shadow-inner border-2 border-gray-800 shadow-gray-800">
         <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
           <b className="text-yel">Recently</b> Viewed Items
         </h3>
@@ -309,7 +309,7 @@ const Profile = () => {
               <RecipeCard
                 key={index}
                 recipeItem={recipe}
-                cardWidth="w-[270px]"
+                cardWidth="w-[160px] xl:w-[270px]"
               />
             ))}
           </div>
@@ -356,7 +356,7 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="px-10">
+            <div className="px-4 xl:px-10">
               <div className="flex justify-center items-center gap-5 my-5">
                 <img
                   src={(userDetails?.avatar as string) || "/assets/default.jpg"}
@@ -370,7 +370,7 @@ const Profile = () => {
                   Change Avatar
                 </button>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
                 <div className="mb-3 text-xl">
                   <label className="text-left">
                     <p>First name</p>

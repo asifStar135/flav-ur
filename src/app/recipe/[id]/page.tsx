@@ -48,6 +48,11 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
     listName: "",
   });
   const isSaved = useRef(false);
+  const [isWide, setIsWide] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth > 600) setIsWide(true);
+  }, []);
 
   const addNewList = () => {
     if (!newListName) {
@@ -239,8 +244,8 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
 
   return (
     <div>
-      <div className="flex w-5/6 mx-auto justify-between my-10">
-        <div className="bg-gray-800 self-center rounded-xl shadow shadow-gray-800 w-1/3">
+      <div className="flex flex-col gap-10 xl:flex-row w-11/12 xl:w-5/6 mx-auto justify-center xl:justify-between mb-8 xl:my-10">
+        <div className="bg-gray-800 self-center rounded-xl shadow shadow-gray-800 w-11/12 xl:w-1/3">
           <img
             src={recipe?.image || "/assets/default-recipe.png"}
             className="rounded-t-lg self-start"
@@ -261,20 +266,20 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 <span className="text-yel">{recipe?.aggregateLikes}</span>
               </span>
             </div>
-            <p className="text-xl mt-3 text-gray-300">
+            <p className="text-lg xl:text-xl mt-3 text-gray-300">
               Ready in{" "}
               <span className=" text-yel">
                 {recipe.readyInMinutes} Mins <BsClock className="inline" />{" "}
               </span>
             </p>
-            <p className="text-xl text-gray-300">
+            <p className="text-lg xl:text-xl text-gray-300">
               Contains{" "}
               <span className=" text-yel">
                 {recipe.servings} servings{" "}
                 <TbBowlSpoonFilled className="inline" />{" "}
               </span>
             </p>
-            <p className="text-xl mb-3 text-gray-300">
+            <p className="text-lg xl:text-xl mb-3 text-gray-300">
               Health score{" "}
               <span className=" text-yel">
                 {recipe.healthScore} points{" "}
@@ -283,13 +288,13 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </p>
             <div>
               <hr />
-              <div className="my-5 flex items-center gap-2">
+              <div className="my-5 flex flex-wrap items-center gap-2">
                 <FaMagnifyingGlassLocation className="text-yel text-2xl mr-2" />
                 {recipe?.cuisines?.length ? (
                   recipe?.cuisines.slice(0, 3).map((cuisine: any) => (
                     <Tag
                       key={cuisine}
-                      className="border border-gray-300 text-lg m-0 bg-gray-700"
+                      className="border border-gray-300 text-base lg:text-lg m-0 bg-gray-700"
                     >
                       {cuisine}
                     </Tag>
@@ -310,7 +315,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                         {recipe?.cuisines.slice(3).map((cuisine: any) => (
                           <Tag
                             key={cuisine}
-                            className="border border-gray-300 text-lg bg-gray-700 m-0"
+                            className="border border-gray-300 text-base lg:text-lg bg-gray-700 m-0"
                           >
                             {cuisine}
                           </Tag>
@@ -324,13 +329,13 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                   </Tooltip>
                 )}
               </div>
-              <div className="mt-5 flex items-center gap-2">
+              <div className="mt-5 flex flex-wrap items-center gap-2">
                 <IoFastFood className="text-yel text-2xl mr-2" />
                 {recipe?.dishTypes?.length ? (
                   recipe.dishTypes.slice(0, 3).map((dish: any) => (
                     <Tag
                       key={dish}
-                      className="border border-gray-300 text-lg m-0 bg-gray-700"
+                      className="border border-gray-300 text-base lg:text-lg m-0 bg-gray-700"
                     >
                       {dish}
                     </Tag>
@@ -351,7 +356,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                         {recipe.dishTypes.slice(3).map((dish: any) => (
                           <Tag
                             key={dish}
-                            className="border border-gray-300 text-lg m-0 bg-gray-700"
+                            className="border border-gray-300 text-base lg:text-lg m-0 bg-gray-700"
                           >
                             {dish}
                           </Tag>
@@ -368,13 +373,13 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </div>
           </div>
         </div>
-        <div className="w-3/5 self-center">
+        <div className="w-full xl:w-3/5 self-center">
           <div>
-            <div className="flex gap-3 mb-2">
+            <div className="flex flex-wrap gap-3 mb-2">
               {recipeTags?.map((tag) => (
                 <div
                   key={tag.tag}
-                  className="p-1 px-2 text-base gap-1 flex items-center rounded-lg border"
+                  className="p-1 xl:px-2 text-base gap-1 flex items-center rounded-lg border"
                   style={{
                     color: tag.color,
                     borderColor: tag.color,
@@ -385,7 +390,9 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 </div>
               ))}
             </div>
-            <h1 className="text-3xl font-semibold mb-3">{recipe?.title}</h1>
+            <h1 className="text-2xl xl:text-3xl border-l-3 border-yel pl-2 font-semibold mb-3">
+              {recipe?.title}
+            </h1>
             <div className="">
               <span
                 className="text-base text-gray-400 recipe-summary"
@@ -431,11 +438,11 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </button>
           </div>
 
-          <div className="bg-gray-800 px-5 py-3 rounded-lg mt-5">
+          <div className="bg-gray-800 p-3 xl:px-5 rounded-lg mt-5">
             <p className="font-semibold text-2xl text-center mb-5">
               <b className="text-yel">Ingredients</b> You Need
             </p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
               {recipe?.extendedIngredients?.map(
                 (ingredient: any, index: number) => (
                   <div className="flex items-center gap-2" key={index}>
@@ -468,8 +475,8 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
         </div>
       </div>
 
-      <div className="flex w-5/6 mx-auto justify-between mb-10">
-        <div className="py-3 px-8 rounded-lg bg-gray-800 w-3/5 self-start">
+      <div className="xl:flex w-11/12 xl:w-5/6 mx-auto justify-between mb-10">
+        <div className="py-3 px-3 xl:px-8 rounded-lg bg-gray-800 xl:w-3/5 self-start">
           <h1 className="text-2xl font-semibold text-center mb-5">
             <b className="text-yel">Steps </b> You've to Follow
           </h1>
@@ -484,14 +491,14 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             )}
           </div>
         </div>
-        <div className="py-3 px-5 rounded-lg bg-gray-800 w-[38%] self-start">
+        <div className="py-3 mt-8 xl:m-0 px-5 rounded-lg bg-gray-800 xl:w-[38%] self-start">
           <h1 className="text-2xl font-semibold text-center mb-3">
             <b className="text-yel">Nutritional </b> information
           </h1>
           <p className="font-semibold text-center text-gray-300 text-lg mb-2">
             Diets included
           </p>
-          <div className="flex gap-2 mb-3">
+          <div className="flex justify-center gap-2 mb-3">
             {recipe?.diets?.length ? (
               recipe?.diets.slice(0, 3).map((diet: any) => (
                 <Tag
@@ -549,7 +556,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
 
           <div className="mt-5 border border-gray-500 pt-2 rounded-lg">
             <p className="text-gray-300 text-lg text-center">All values</p>
-            <div className="grid grid-cols-2 max-h-44 overflow-auto scrollbar-hidden">
+            <div className="grid grid-cols-2 max-h-60 xl:max-h-44 overflow-auto scrollbar-hidden">
               {recipe?.nutrition?.nutrients?.map((nutr: any, index: number) => (
                 <p
                   className={
@@ -573,15 +580,15 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
         </div>
       </div>
 
-      <div className="w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
+      <div className="w-11/12 xl:w-4/5 my-10 mx-auto rounded-lg py-8 border-2 border-gray-800">
         <h3 className="text-2xl text-yel font-semibold mb-4 text-center">
           Check Similar Recipes
         </h3>
         <div className="overflow-x-scroll scrollbar-hidden w-full px-5">
           <div
-            className={`flex justify-around gap-5`}
+            className={`flex justify-around  gap-5`}
             style={{
-              width: similarRecipes?.length * 300 + "px",
+              width: similarRecipes?.length * (isWide ? 300 : 190) + "px",
             }}
           >
             {similarRecipes.map((item: any, index: number) => (
@@ -589,26 +596,28 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
                 <img
                   src={imageBaseUrl + item?.id + "-240x150." + item?.imageType}
                   alt=""
-                  className="rounded-t-lg w-[280px]"
+                  className="rounded-t-lg w-[180px] xl:w-[280px]"
                 />
                 <Tooltip
                   title={item?.title?.length > 25 ? item.title : ""}
                   color="#2b3348"
-                  className="cursor-pointer text-lg text-gray-300 font-semibold"
+                  className="cursor-pointer text-base xl:text-lg text-gray-300 font-semibold"
                   overlayStyle={{ maxWidth: "300px" }} // Optional: Set max width for the tooltip
                   placement="top" // Optional: Adjust placement
                 >
-                  <p className="m-3 ">{truncateText(item?.title, 25)}</p>
+                  <p className="m-2 xl:m-3">{truncateText(item?.title, 25)}</p>
                 </Tooltip>
 
-                <div className="flex justify-between px-5 text-lg">
+                <div className="flex justify-between px-2 xl:px-5 text-lg">
                   <div className="flex items-center gap-2">
                     <FaClock className="text-blue-600" />
                     <span>{getTime(item?.readyInMinutes)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <TbBowlSpoonFilled className="text-green-600" />
-                    <span>{item?.servings} servings</span>
+                    <span>
+                      {item?.servings} {isWide && "servings"}
+                    </span>
                   </div>
                 </div>
                 <div className="my-5 text-center">
@@ -630,7 +639,8 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
         footer={null}
         onCancel={() => closeCookbookModal()}
         className="my-modal"
-        width={isSaved.current ? "50%" : "40%"}
+        // width={isSaved.current ? "50%" : "40%"}
+        width={!isWide ? "90%" : "50%"}
       >
         <div className="">
           {isSaved.current == false ? (
@@ -650,10 +660,10 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
             </h1>
           )}
 
-          <div className="w-2/3 mx-auto my-5">
+          <div className="xl:w-2/3 mx-auto my-5">
             <div className={isSaved.current ? "flex gap-3 items-center" : ""}>
               {isSaved.current == false && (
-                <h1 className="text-xl mb-2 text-gray-300">
+                <h1 className="text-xl text-center mb-2 text-gray-300">
                   Select the list you want to add this recipe
                 </h1>
               )}

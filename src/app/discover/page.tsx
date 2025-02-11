@@ -82,11 +82,12 @@ const Discover = () => {
     if (isNew) limit.current = 5;
     else limit.current += 5;
 
-    Recipe?.getTitleSuggestions(debouncedQuery, limit.current).then(
-      (result) => {
-        setSearchResult(result);
-      }
-    );
+    Recipe?.getTitleSuggestions(
+      debouncedQuery.toLowerCase(),
+      limit.current
+    ).then((result) => {
+      setSearchResult(result);
+    });
   };
 
   const switchModes = (value: boolean) => {
@@ -255,7 +256,7 @@ const Discover = () => {
                       alt="Recipe search"
                       className="w-20 rounded-full border border-yel"
                     />
-                    <h1 className="text-2xl text-gray-300 hover:text-yel">
+                    <h1 className="text-xl xl:text-2xl text-gray-300 hover:text-yel">
                       <Link href={"/recipe/" + item?.id}>
                         {truncateText(item?.title, 40)}
                       </Link>
