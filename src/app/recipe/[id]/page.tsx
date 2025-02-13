@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { collapseSummary, getRating, getTime, truncateText } from "@/helper";
 import { Cookbook, Recent, Recipe } from "@/services";
 import { Divider, Input, Modal, Rate, Select, Space, Tag, Tooltip } from "antd";
@@ -242,7 +243,7 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
     console.log(recipe);
   }, [recipe]);
 
-  return (
+  return recipe?.title ? (
     <div>
       <div className="flex flex-col gap-10 xl:flex-row w-11/12 xl:w-5/6 mx-auto justify-center xl:justify-between mb-8 xl:my-10">
         <div className="bg-gray-800 self-center rounded-xl shadow shadow-gray-800 w-11/12 xl:w-1/3">
@@ -742,6 +743,10 @@ export default function Page({ params }: { params: Promise<ParamsType> }) {
           </div>
         </div>
       </Modal>
+    </div>
+  ) : (
+    <div className="my-28">
+      <Loader />
     </div>
   );
 }
