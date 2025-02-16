@@ -2,8 +2,6 @@
 
 📖 **Discover, Save, and Personalize Your Favorite Recipes**
 
-![logo](https://drive.google.com/file/d/1N_J3uJ1_EjpoGzwLzhFB4ag9LglfNY5a/view?usp=sharing)
-
 ---
 
 ## 🚀 About Flav-ur
